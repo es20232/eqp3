@@ -13,7 +13,7 @@
 
 1. [Tecnologias utilizadas](#tecnologias-utilizadas)
 2. [Tutorial de instalação das ferramentas no Linux](#tutorial-de-instalação-das-ferramentas-no-linux)
-   1. [Instalando a IDE para o uso de Javascript](#instalando-a-ide-para-o-uso-de-javascript)
+   1. [Instalando a IDE para o uso de Javascript](#instalando-a-ide-para-o-uso-de-javascript-no-linux)
       1. [Instalação do VsCode através do site oficial](#instalação-do-vscode-através-do-site-oficial)
       2. [Instalação do VsCode via loja de aplicativos](#instalação-do-vscode-via-loja-de-aplicativos)
    2. [Instalação do Node.js](#instalação-do-nodejs)
@@ -21,23 +21,17 @@
       1. [Instalando o Django](#instalando-o-django)
       2. [Instalando o Django REST](#instalando-o-django-rest)
    4. [Instalação do PostgreSQL](#instalação-do-postgresql)
-3. [Instalação do Node.js](#instalação-do-nodejs)
-   1. [Download e inicialização do arquivo executável](#download-e-inicialização-do-arquivo-executável)
-   2. [Seleção da versão 20.9.0 LTS](#seleção-da-versão-2090-lts)
-   3. [Seleção de diretório e customização do setup](#seleção-de-diretório-e-customização-do-setup)
-   4. [Instalação e verificação](#instalação-e-verificação)
-4. [Instalação do Django REST e seus requisitos](#instalação-do-django-rest-e-seus-requisitos)
-   1. [Instalação do Python](#instalação-do-python)
-      1. [Acesso ao site do Python](#acesso-ao-site-do-python)
-      2. [Execução do arquivo de instalação](#execução-do-arquivo-de-instalação)
-      3. [Verificação da instalação](#verificação-da-instalação)
-   2. [Instalação do Django REST](#instalação-do-django-rest)
-5. [Configuração da IDE para o uso de Javascript](#configuração-da-ide-para-o-uso-de-javascript)
+3. [Tutorial de instalação das ferramentas no Windows](#tutorial-de-instalação-das-ferramentas-no-windows)
+    1. [Instalação do Node.js](#instalação-do-nodejs)
+    2. [Instalação do Django REST e seus requisitos](#instalação-do-django-rest-e-seus-requisitos)
+    3. [Instalação do Python](#instalação-do-python)
+    4. [Instalação do Django REST](#instalação-do-django-rest)
+    5. [Instalação do PostgreSQL]()
+4. [Configuração da IDE para o uso de Javascript](#configurando-ide-para-o-uso-de-javascript)
    1. [Instalação do VsCode através do site oficial](#instalação-do-vscode-através-do-site-oficial)
-      1. [Download e instalação](#download-e-instalação)
-      2. [Aceitação de termos e instalação](#aceitação-de-termos-e-instalação)
-      3. [Marcação de caixas de seleção e conclusão da instalação](#marcação-de-caixas-de-seleção-e-conclusão-da-instalação)
-
+5. [Tutorial de uma aplicação web completa](#tutorial-de-uma-aplicação-web-completa)
+    1. [Funcionamento da aplicação web](#funcionamento-da-aplicação-web)
+    2. [Criando uma API REST com Django REST Framework](#criando-uma-api-rest-com-django-rest-framework)
 
 # Tutorial de instalação das ferramentas no Linux
 
@@ -235,3 +229,122 @@ Neste tutorial estaremos utilizando o editor de texto Visual Studio Code (VsCode
 <p align=center>
     <img src="https://abaft-faucet-00f.notion.site/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2Fc6786318-d141-43c3-a77e-12749fec8bee%2F5cb17331-689b-4b25-b812-85ac6210692b%2FUntitled.png?table=block&id=3d5abef5-a93b-4b7a-b4c1-18d696127c8c&spaceId=c6786318-d141-43c3-a77e-12749fec8bee&width=860&userId=&cache=v2" heigth=500 width=500/>
 </p>
+
+# Tutorial de uma aplicação web completa
+## Funcionamento da aplicação web
+Iremos agora desenvolver uma aplicação completa de gerenciamento de produtos com as tecnologias apresentadas anteriormente. Através do consumo de endpoints definidos na API, é possível:
+Listar todos os produtos: obter uma visão geral de todos os produtos disponíveis no sistema.
+
+- Criar um novo produto: adicionar novos itens ao banco de dados. Ao enviar os detalhes do produto, como nome, preço e imagem, é possível criar registros para novos produtos de forma simples e direta.
+
+- Obter detalhes de um produto específico: oferece a capacidade de visualizar informações detalhadas sobre um único produto, com base em um ID único associado a cada item.
+
+- Atualizar um produto existente: ao enviar todas as informações atualizadas do produto, é possível modificar completamente os detalhes de um produto específico.
+
+- Deletar um produto: remover um produto específico do banco de dados com base em seu ID.
+
+## Criando uma API REST com Django REST Framework
+>O projeto completo da API está disponível no [github](https://github.com/JFBatista023/Tutorial_CRUD_Django).
+
+### Criação do projeto
+Antes de começar os passos, crie um diretório para o projeto e navegue até ele no terminal. Irei usar o diretório com o nome “backend”.
+Crie e ative um ambiente virtual para organizar as dependências do projeto:
+
+**Use o comando para criar o ambiente:** 
+- No Windows: ````python -m venv env````
+- No Linux: ````python3 -m venv env````
+
+**Agora ative o ambiente:**
+- No Windows: env\Scripts\activate
+- No Linux: source env/bin/activate
+
+**Instale e crie um projeto Django:**
+- Instale o Django: ````pip install django````
+- Crie um novo projeto “produtos”: ````django-admin startproject produtos````
+- Crie um novo app “api”: ````python manage.py startapp api````
+
+**Instale o Django REST Framework:**
+- Use o comando: ````pip install djangorestframework````
+
+**Cadastre o app e o Django REST:**
+- Acesse o arquivo settings.py
+- Localize a lista ````INSTALLED_APPS```` e insira o nome do app e o Django REST
+
+### Configurando o banco de dados
+Para utilizar o PostgreSQL deve-se instalar a dependência que o Django utiliza e depois configurar o acesso ao banco de dados na settings.py.
+Instale a dependência via o comando: ````pip install psycopg2-binary````
+, localize o dicionário ````DATABASE```` e modifique os dados de acordo com a configuração do seu banco de dados:
+
+### Criando o model
+Agora vamos criar o model do Produto para que seja adicionado ao banco de dados e possamos realizar o CRUD e navegue até o arquivo models.py. No arquivo, insira o código do model Produto com seus atributos:
+
+Instalar a dependência de manipulação de imagem: 
+````
+pip install Pillow
+````
+### Criando migrations
+Para que o model seja adicionado no banco de dados, devemos realizar as migrations.
+Gerar o código SQL das migrations via comando: 
+````
+python manage.py makemigrations
+````
+Executar as migrations via comando: 
+````
+python manage.py migrate
+````
+
+### Criando serializer
+Devemos criar agora um serializer para que o objeto Produto possa ser serializado em um JSON, por exemplo. Crie um arquivo serializers.py no diretório do seu app (no meu caso, api/serializers.py):
+
+Crie o serializer para o model Produto:
+
+### Criando os endpoints
+Vamos criar os endpoints que irão ser consumidos nas requisições do frontend.
+1. Acesse o arquivo views.py
+
+2. Crie os endpoints de ````GET````, ````POST````, ````PATCH```` e ````DELETE```` (Insira o código que está disponível no github)
+
+### Criando as urls
+Para que seja possível consumir os endpoints criados na views, devemos associá-los a urls.
+
+1. Crie o arquivo ````urls.py```` no diretório do seu app
+2. Crie as urls
+3. Localize o arquivo ````urls.py```` do projeto:
+4. Adicione as urls do app:
+
+
+### Configurando o CORS
+Após configurar as urls, precisamos configurar o CORS da aplicação para que seja possível consumir os endpoints por outras aplicações.
+
+1. Instale a dependência necessária via comando: ````pip install django-cors-headers````
+2. Adicione a dependência do CORS na lista ````INSTALLED_APPS```` no arquivo ````settings.py````
+3. Adicione o seguinte código no arquivo settings.py:
+4. Localize a lista ````MIDDLEWARE```` e adicione o middleware do CORS:
+
+**OBS: O "corsheaders.middleware.CorsMiddleware” deve ficar acima do "django.middleware.common.CommonMiddleware".**
+
+### Rodando o servidor
+Para iniciar o servidor, devemos executar o comando: ````python manage.py runserver````
+
+### Realizando requisições
+Com o servidor rodando, iremos realizar requisições para testar cada endpoint da aplicação. Para isso, usaremos a ferramenta HTTPIE nesse tutorial. Com essa ferramenta, podemos testar os endpoints da API sem ter um frontend.
+
+1. ````POST /api/produtos/````
+    - Vamos adicionar 2 produtos como teste
+
+2. ````GET /api/produtos````
+
+
+3. ````GET /api/produtos/1````
+
+4. ````PATCH /api/produtos/````
+    - Aqui podemos notar que o url do atributo produto mudou.
+
+5. ````DELETE /api/produtos/2````
+    - Como é uma requisição de DELETE, ele envia apenas o Http Status Code 204
+
+
+Se fizermos o ````GET /api/produtos```` novamente, podemos verificar que o item 2 não está mais presente na resposta do servidor.
+
+
+**OBS: Ao fazer as requisições POST e PATCH, por estar fazendo um upload de arquivo, deve-se mudar o formato da requisição para multipart/form-data.**
