@@ -28,14 +28,18 @@ source env/bin/activate
 
 ## Instalando Dependências
 
-### Criando um Arquivo `.env`
-
-Copie o arquivo `.env-example` para um novo arquivo chamado `.env` e preencha com suas próprias variáveis de ambiente.
-
-### Instalando Dependências do `requirements.txt`
-
 Certifique-se de estar no ambiente virtual e execute o seguinte comando para instalar todas as dependências listadas no arquivo `requirements.txt`:
 
 ```bash
 pip install -r requirements.txt
+```
+## Criando um Arquivo `.env`
+
+Copie o arquivo `.env-example` para um novo arquivo chamado `.env` e preencha com suas próprias variáveis de ambiente.
+
+## Realizando migrations
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
 ```
