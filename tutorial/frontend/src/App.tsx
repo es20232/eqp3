@@ -1,23 +1,23 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { Button, TextField, Container, Grid, Paper, Typography, ThemeProvider, CssBaseline, FormLabel, List, ListItem, ListItemText } from '@mui/material';
-import theme from './components/theme';
+import { Button, Container, CssBaseline, FormLabel, Grid, List, ListItem, ListItemText, Paper, TextField, ThemeProvider, Typography } from '@mui/material';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import ProdutoDaApi from './components/modulos/ProdutoDaApi';
 import ProdutoParaApi from './components/modulos/ProdutoParaApi';
+import theme from './components/theme';
 
 const App = () => {
   const URL = 'http://127.0.0.1:8000';
 
-  const [dadosMovoProduto, setDadosNovoProduto] = useState<ProdutoParaApi>(new ProdutoParaApi(-1,'',0,null));
-  const [produtoEncontrado, setProdutoEncontrado] = useState<ProdutoDaApi>(new ProdutoDaApi(-1,'',0,null));
-  const [novoDadoProduto, setNovoDadoProduto] = useState<ProdutoParaApi>(new ProdutoParaApi(-1,'',0,null));
+  const [dadosMovoProduto, setDadosNovoProduto] = useState<ProdutoParaApi>(new ProdutoParaApi(-1, '', 0, null));
+  const [produtoEncontrado, setProdutoEncontrado] = useState<ProdutoDaApi>(new ProdutoDaApi(-1, '', 0, null));
+  const [novoDadoProduto, setNovoDadoProduto] = useState<ProdutoParaApi>(new ProdutoParaApi(-1, '', 0, null));
   const [listaProdutos, setListaProdutos] = useState<ProdutoDaApi[]>([]);
 
   const [idDeletarProduto, setIdDeletarProduto] = useState(-1);
   const [idBuscarProduto, setIdBuscarProduto] = useState(-1);
-  
-  const [resultadosVisiveis, setResultadosVisiveis] = useState<{buscaItem : boolean, buscaItens : boolean}>({
-    buscaItem : false,
-    buscaItens : false
+
+  const [resultadosVisiveis, setResultadosVisiveis] = useState<{ buscaItem: boolean, buscaItens: boolean }>({
+    buscaItem: false,
+    buscaItens: false
   });
 
   const handleChangeCreate = (e: ChangeEvent<HTMLInputElement>) => {
@@ -39,20 +39,21 @@ const App = () => {
 
   const handleSubmitCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const {nome, preco, imagem} = { 
+    const { nome, preco, imagem } = {
       nome: dadosMovoProduto.getNome(),
-      preco : dadosMovoProduto.getPreco(),
-      imagem: dadosMovoProduto.getImagem()};
+      preco: dadosMovoProduto.getPreco(),
+      imagem: dadosMovoProduto.getImagem()
+    };
 
-    if(nome === null || nome === '') {
+    if (nome === null || nome === '') {
       alert("Adicione um nome");
       return;
     }
-    if(preco === null || preco <= 0) {
+    if (preco === null || preco <= 0) {
       alert("Adicione um preco válido.");
       return;
     }
-    if(imagem === null) {
+    if (imagem === null) {
       alert("Adicione uma imagem");
       return;
     }
@@ -66,12 +67,12 @@ const App = () => {
     try {
       const resposta = await fetch(
         URL + '/api/produtos/', {
-          method: 'POST',
-          body: formData
-        }
+        method: 'POST',
+        body: formData
+      }
       );
 
-      if(!resposta.ok){
+      if (!resposta.ok) {
         alert('Erro ao adicionar produto.');
         throw new Error(`HTTP error! status: ${resposta.status}`);
       }
@@ -80,7 +81,7 @@ const App = () => {
 
       setResultadosVisiveis({
         ...resultadosVisiveis,
-        buscaItens : false
+        buscaItens: false
       });
     } catch (error) {
       console.error('Erro:', error);
@@ -93,7 +94,7 @@ const App = () => {
 
   const handleDelete = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if(idDeletarProduto === -1 || Number.isNaN(idDeletarProduto)){
+    if (idDeletarProduto === -1 || Number.isNaN(idDeletarProduto)) {
       console.log('Informe o id');
     }
 
@@ -102,22 +103,22 @@ const App = () => {
         method: 'DELETE',
       });
 
-      if(!resposta.ok){
+      if (!resposta.ok) {
         alert('Erro ao deletar produto. Verifique se o ID do produto está correto.');
         throw new Error(`HTTP error! status: ${resposta.status}`);
       }
 
       alert('Produto removido com sucesso.');
-      if (idDeletarProduto === novoDadoProduto.getId()){
+      if (idDeletarProduto === novoDadoProduto.getId()) {
         novoDadoProduto.reset();
         setResultadosVisiveis({
-          buscaItens : false,
-          buscaItem : false
+          buscaItens: false,
+          buscaItem: false
         });
-      }else{
+      } else {
         setResultadosVisiveis({
           ...resultadosVisiveis,
-          buscaItens : false
+          buscaItens: false
         });
       }
     } catch (error) {
@@ -131,7 +132,7 @@ const App = () => {
 
   const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if(idBuscarProduto === -1 || Number.isNaN(idBuscarProduto)){
+    if (idBuscarProduto === -1 || Number.isNaN(idBuscarProduto)) {
       alert('Informe o ID do produto');
       return;
     }
@@ -141,14 +142,14 @@ const App = () => {
         method: 'GET'
       });
 
-      if(!resposta.ok){
+      if (!resposta.ok) {
         alert(`Erro ao encontrar o produto de ID ${idBuscarProduto}. Verifique se o ID do produto está correto.`);
         throw new Error(`HTTP error! status: ${resposta.status}`);
       }
 
-      setNovoDadoProduto(new ProdutoParaApi(idBuscarProduto,'',0,null));
+      setNovoDadoProduto(new ProdutoParaApi(idBuscarProduto, '', 0, null));
       const dados = await resposta.json();
-      
+
       if (dados.length > 0) {
         const dadosDoProduto = dados[0];
         setProdutoEncontrado(
@@ -161,7 +162,7 @@ const App = () => {
 
         setResultadosVisiveis({
           ...resultadosVisiveis,
-          buscaItem : true
+          buscaItem: true
         });
       } else {
         alert(`Erro ao encontrar o produto de ID ${idBuscarProduto}. Verifique se o ID do produto está correto.`);
@@ -172,11 +173,11 @@ const App = () => {
   };
 
   const handleProductList = async () => {
-    const resposta = await fetch(URL + '/api/produtos/',{
+    const resposta = await fetch(URL + '/api/produtos/', {
       method: 'GET'
     });
 
-    if(!resposta.ok){
+    if (!resposta.ok) {
       alert(`Erro ao encontrar os produtos no Banco de Dados, insira algum produto e tente novamente.`);
       throw new Error(`HTTP error! status: ${resposta.status}`);
     }
@@ -187,28 +188,28 @@ const App = () => {
     setListaProdutos(produtosMapeados);
     setResultadosVisiveis({
       ...resultadosVisiveis,
-      buscaItens : true
+      buscaItens: true
     })
   };
 
-  const handleChangeAtualizar = (e : ChangeEvent<HTMLInputElement>) => {
-    if (e.target.name === 'imagem'){
+  const handleChangeAtualizar = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.name === 'imagem') {
       if (e.target.files !== null) {
         const file = e.target.files[0];
-        setNovoDadoProduto(() : ProdutoParaApi => {
+        setNovoDadoProduto((): ProdutoParaApi => {
           const novosDados = novoDadoProduto
           novosDados.setImagem(file)
           return novosDados;
         });
       }
-    }else if(e.target.name === 'preco'){
-      setNovoDadoProduto(() : ProdutoParaApi => {
+    } else if (e.target.name === 'preco') {
+      setNovoDadoProduto((): ProdutoParaApi => {
         const novosDados = novoDadoProduto
         novosDados.setPreco(parseFloat(e.target.value));
         return novosDados;
       });
-    }else{
-      setNovoDadoProduto(() : ProdutoParaApi => {
+    } else {
+      setNovoDadoProduto((): ProdutoParaApi => {
         const novosDados = novoDadoProduto
         novosDados.setNome(e.target.value);
         return novosDados;
@@ -216,52 +217,52 @@ const App = () => {
     }
   };
 
-  const handleAtualiza = async (e : FormEvent<HTMLFormElement>) => {
+  const handleAtualiza = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { nome, preco, imagem} = {
+    const { nome, preco, imagem } = {
       nome: novoDadoProduto.getNome(),
       preco: novoDadoProduto.getPreco(),
       imagem: novoDadoProduto.getImagem()
     }
     const formData = new FormData();
     let tem_dado = false;
-    if(nome !== '' && nome !== null){
+    if (nome !== '' && nome !== null) {
       formData.append('nome', nome);
       tem_dado = true;
     }
-    if(preco !== 0 && preco !== null){
+    if (preco !== 0 && preco !== null) {
       formData.append('preco', `${preco}`);
-      if(!tem_dado) tem_dado = true;
+      if (!tem_dado) tem_dado = true;
     }
-    if(imagem !== null){
+    if (imagem !== null) {
       formData.append('imagem', imagem);
-      if(!tem_dado) tem_dado = true;
+      if (!tem_dado) tem_dado = true;
     }
 
-    if(tem_dado){
+    if (tem_dado) {
       try {
         const resposta = await fetch(
           URL + '/api/produtos/' + novoDadoProduto.getId() + '/', {
-            method: 'PATCH',
-            body: formData
-          }
+          method: 'PATCH',
+          body: formData
+        }
         );
-  
-        if(!resposta.ok){
+
+        if (!resposta.ok) {
           alert('Erro ao adicionar produto.');
           throw new Error(`HTTP error! status: ${resposta.status}`);
         }
 
         setResultadosVisiveis({
-          buscaItens : false,
-          buscaItem : false
+          buscaItens: false,
+          buscaItem: false
         });
 
         alert('Produto atualizado com sucesso.');
       } catch (error) {
         console.error('Erro:', error);
       }
-    }else{
+    } else {
       alert(`Preencha ao menos 1 campo para atualizar o produto de ID ${novoDadoProduto.getId()}.`)
     }
   };
@@ -269,7 +270,7 @@ const App = () => {
   return (
     <ThemeProvider theme={theme()}>
       <CssBaseline />
-      <Container style={{'padding': 20}}>
+      <Container style={{ 'padding': 20 }}>
         <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
           <Typography variant="h4" gutterBottom>
             Adicionar Produto
@@ -295,21 +296,21 @@ const App = () => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <input 
-                  type="file" 
-                  name="imagem" 
-                  onChange={handleChangeCreate} 
+                <input
+                  type="file"
+                  name="imagem"
+                  onChange={handleChangeCreate}
                 />
               </Grid>
-              <Grid item xs={12} style={{width: '100%'}}><Button variant="contained" color="primary" type='submit'>
+              <Grid item xs={12} style={{ width: '100%' }}><Button variant="contained" color="primary" type='submit'>
                 Criar
               </Button></Grid>
             </Grid>
           </form>
         </Paper>
       </Container>
-      <Container style={{'padding': 20}}>
-        <Paper elevation={3} style={{ padding: '20px'}}>
+      <Container style={{ 'padding': 20 }}>
+        <Paper elevation={3} style={{ padding: '20px' }}>
           <Typography variant="h4" gutterBottom>
             Remover Produto
           </Typography>
@@ -331,8 +332,8 @@ const App = () => {
           </form>
         </Paper>
       </Container>
-      <Container style={{'padding': 20}}>
-        <Paper elevation={3} style={{ padding: '20px'}}>
+      <Container style={{ 'padding': 20 }}>
+        <Paper elevation={3} style={{ padding: '20px' }}>
           <Typography variant="h4" gutterBottom>
             Buscar por Produto
           </Typography>
@@ -356,13 +357,13 @@ const App = () => {
             <Grid>
               <Grid container spacing={3} style={{ width: '100%', marginTop: '20px' }}>
                 <Grid item xs={3}>
-                  <img src={URL + produtoEncontrado.getImagem()} alt={produtoEncontrado.getNome()} style={{maxWidth: '100%'}} />
+                  <img src={URL + produtoEncontrado.getImagem()} alt={produtoEncontrado.getNome()} style={{ maxWidth: '100%' }} />
                 </Grid>
                 <Grid item xs={9} container direction="column" justifyContent="flex-start">
-                  <Grid item style={{marginTop: '20px'}}>
+                  <Grid item style={{ marginTop: '20px' }}>
                     <FormLabel>Nome: {produtoEncontrado.getNome()}.</FormLabel>
                   </Grid>
-                  <Grid item style={{marginTop: '10px'}}>
+                  <Grid item style={{ marginTop: '10px' }}>
                     <FormLabel>Preço: {produtoEncontrado.getPreco()} reais (BR).</FormLabel>
                   </Grid>
                 </Grid>
@@ -394,10 +395,10 @@ const App = () => {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <input 
-                        type="file" 
-                        name="imagem" 
-                        onChange={handleChangeAtualizar} 
+                      <input
+                        type="file"
+                        name="imagem"
+                        onChange={handleChangeAtualizar}
                       />
                     </Grid>
                     <Grid item><Button variant="contained" color="primary" type='submit'>
@@ -410,8 +411,8 @@ const App = () => {
           )}
         </Paper>
       </Container>
-      <Container style={{'padding': 20}}>
-        <Paper elevation={3} style={{ padding: '20px'}}>
+      <Container style={{ 'padding': 20 }}>
+        <Paper elevation={3} style={{ padding: '20px' }}>
           <Typography variant="h4">Lista de Produtos</Typography>
           <List>
             {resultadosVisiveis.buscaItens && listaProdutos.map((ProdutoDaApi, i) => (
@@ -427,6 +428,6 @@ const App = () => {
       </Container>
     </ThemeProvider>
   );
-  
+
 }
 export default App;
