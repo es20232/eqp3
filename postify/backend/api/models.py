@@ -16,11 +16,6 @@ def validate_image_format(image):
 
 
 class User(AbstractBaseUser):
-    GENDER_CHOICES = (
-        ("M", "Male"),
-        ("F", "Female"),
-    )
-
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"
 
