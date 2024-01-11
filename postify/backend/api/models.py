@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from PIL import Image as PILImage
 
 
@@ -28,8 +29,7 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True, null=False)
     biography = models.CharField(max_length=255, null=True, blank=True)
     profile_image = models.ImageField(null=True, validators=[validate_image_format])
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=False)
-    birth_date = models.DateField(null=False)
+    phone_number = models.CharField(max_length=255, null=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -42,6 +42,11 @@ class User(AbstractBaseUser):
                 % self.profile_image.name.split(".")[1]
             )
         return super(User, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.excluded_at = timezone.now()
+        self.is_active = False
+        self.save(update_fields=["excluded_at", "is_active"])
 
 
 class Image(models.Model):
@@ -58,7 +63,7 @@ class Image(models.Model):
 
 
 class Post(models.Model):
-    description = models.CharField(max_length=255, null=True, blank=True)
+    caption = models.CharField(max_length=255, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.OneToOneField(Image, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
@@ -71,6 +76,11 @@ class Post(models.Model):
             raise ValidationError("This image has already been used in a post.")
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        self.excluded_at = timezone.now()
+        self.is_active = False
+        self.save(update_fields=["excluded_at", "is_active"])
+
 
 class Comment(models.Model):
     comment = models.CharField(max_length=255, null=False)
@@ -80,6 +90,11 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     excluded_at = models.DateTimeField(null=True, blank=True)
+
+    def delete(self, *args, **kwargs):
+        self.excluded_at = timezone.now()
+        self.is_active = False
+        self.save(update_fields=["excluded_at", "is_active"])
 
 
 class Like(models.Model):
