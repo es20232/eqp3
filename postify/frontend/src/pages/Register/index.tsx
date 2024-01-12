@@ -1,14 +1,26 @@
 import { Button, Container, Grid, Paper, TextField, Typography } from "@mui/material";
-
-function handleCadastro() {
-
-}
+import { useNavigate } from "react-router-dom";
 
 const Cadastro = () => {
+  const navigate = useNavigate();
+
+  function handleCadastro() {
+
+  }
+
+  const handleConfirm = () => {
+    alert("Cadastro efetuado com sucesso!");
+    return navigate("/")
+  }
+
+  const handleCancele = () => {
+    return navigate("/");
+  }
+
   return (
     <Container maxWidth={'sm'}>
       <Paper elevation={4} style={{ padding: '20px', marginTop: '20px' }}>
-        <Typography variant='h6'>
+        <Typography align="center" variant='h6'>
           Cadastro de Novo usuário
         </Typography>
         <form onSubmit={handleCadastro} autoComplete="off">
@@ -68,12 +80,12 @@ const Cadastro = () => {
           />
           <Grid container display={"flex"} justifyContent={"space-around"} marginTop={'20px'}>
             <Grid item>
-              <Button variant="contained" color="primary">
+              <Button variant="contained" color="primary" onClick={handleCancele}>
                 Cancelar
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" color="primary">
+              <Button variant="contained" color="primary" onClick={handleConfirm}>
                 Confirmar
               </Button>
             </Grid>
