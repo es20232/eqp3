@@ -31,9 +31,13 @@ class User(AbstractBaseUser):
     excluded_at = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk and self.profile_image:
+        if (
+            self.pk
+            and self.request.method == "PUT"
+            and "profile_image" in self.request.FILES
+        ):
             self.profile_image.name = (
-                f"{self.id}/{self.profile_image.name.split('.')[0]}.%s"
+                f"{self.id}/profile_images/{self.profile_image.name.split('.')[0]}.%s"
                 % self.profile_image.name.split(".")[1]
             )
         return super(User, self).save(*args, **kwargs)
