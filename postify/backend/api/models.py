@@ -20,7 +20,7 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = "username"
 
     name = models.CharField(max_length=255, null=False)
-    username = models.CharField(max_length=255, null=False)
+    username = models.CharField(max_length=255, null=False, unique=True)
     email = models.EmailField(unique=True, null=False)
     biography = models.CharField(max_length=255, null=True, blank=True)
     profile_image = models.ImageField(null=True, validators=[validate_image_format])
@@ -31,15 +31,16 @@ class User(AbstractBaseUser):
     excluded_at = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if (
-            self.pk
-            and self.request.method == "PUT"
-            and "profile_image" in self.request.FILES
-        ):
-            self.profile_image.name = (
-                f"{self.id}/profile_images/{self.profile_image.name.split('.')[0]}.%s"
-                % self.profile_image.name.split(".")[1]
-            )
+        if hasattr(self, "request"):
+            if (
+                self.pk
+                and self.request.method == "PUT"
+                and "profile_image" in self.request.FILES
+            ):
+                self.profile_image.name = (
+                    f"{self.id}/profile_images/{self.profile_image.name.split('.')[0]}.%s"
+                    % self.profile_image.name.split(".")[1]
+                )
         return super(User, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -55,7 +56,7 @@ class Image(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.image.name = (
-                f"{self.user.id}/{self.image.name.split('.')[0]}.%s"
+                f"{self.user.id}/post_images/{self.image.name.split('.')[0]}.%s"
                 % self.image.name.split(".")[1]
             )
         return super(Image, self).save(*args, **kwargs)
