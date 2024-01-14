@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import AbstractBaseUser
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -47,6 +49,13 @@ class User(AbstractBaseUser):
         self.excluded_at = timezone.now()
         self.is_active = False
         self.save(update_fields=["excluded_at", "is_active"])
+
+
+class EmailConfirmation(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    code = models.UUIDField(default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(null=True, blank=True)
 
 
 class Image(models.Model):

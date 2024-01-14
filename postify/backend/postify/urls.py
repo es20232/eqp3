@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from api.views import (
+    ConfirmEmailView,
     PostViewSet,
     UserRegisterViewSet,
     UserTokenObtainPairView,
@@ -30,6 +31,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
 router.register(r"register", UserRegisterViewSet, basename="register")
+router.register(r"register/confirm-email", ConfirmEmailView, basename="confirm-email")
 router.register(r"posts", PostViewSet, basename="post")
 
 urlpatterns = [

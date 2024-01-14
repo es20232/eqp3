@@ -1,5 +1,7 @@
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -7,13 +9,14 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from ..models import User
+from ..models import EmailConfirmation, User
 from ..serializers import (
     ChangePasswordSerializer,
     UserRegisterSerializer,
     UserSerializer,
     UserTokenObtainPairSerializer,
 )
+from ..utils.email.sender import send_confirmation_email
 
 
 class UserTokenObtainPairView(TokenObtainPairView):
@@ -37,7 +40,23 @@ class UserRegisterViewSet(ViewSet):
                 data=user_serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
+        # TODO: Tirar comentário para validar email
+        # send_confirmation_email(user=user)
         return Response(status=status.HTTP_201_CREATED)
+
+
+class ConfirmEmailView(ViewSet):
+    @transaction.atomic()
+    def retrieve(self, request, pk):
+        confirmation = get_object_or_404(EmailConfirmation, code=pk)
+
+        if not confirmation.confirmed_at:
+            confirmation.confirmed_at = timezone.now()
+            confirmation.user.is_active = True
+            confirmation.user.save()
+            confirmation.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserViewSet(ViewSet):
@@ -95,7 +114,7 @@ class UserViewSet(ViewSet):
         detail=False,
         methods=["POST"],
         url_path="change-password",
-        url_name="user-change-password",
+        url_name="change-password",
     )
     def change_password(self, request):
         """
