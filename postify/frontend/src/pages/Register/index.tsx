@@ -1,4 +1,4 @@
-import { Button, Container, Grid, Paper, TextField, Typography } from "@mui/material";
+import { Button, Container, Grid, Paper, TextField, TextFieldVariants, Typography } from "@mui/material";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +9,45 @@ const Cadastro = () => {
   const [pessoa, setPessoa] = useState<{ nome: string, email: string, telefone: string, login: string, senha: string, repeteSenha: string }>({
     nome: "", email: "", telefone: "", login: "", senha: "", repeteSenha: ""
   });
+
+  const [config_textField, setConfig_textField] = useState<{
+    erro_login: boolean,
+    variant_login: TextFieldVariants,
+    helperText_login: string,
+    erro_email: boolean,
+    variant_email: TextFieldVariants,
+    helperText_email: string,
+    erro_senha: boolean,
+    variant_senha: TextFieldVariants,
+    helperText_senha: string
+  }>({
+    erro_login: false,
+    variant_login: 'outlined',
+    helperText_login: "",
+    erro_email: false,
+    variant_email: 'outlined',
+    helperText_email: "",
+    erro_senha: false,
+    variant_senha: 'outlined',
+    helperText_senha: ""
+  })
+
+  function dados_corretos() {
+    if (pessoa.senha != pessoa.repeteSenha) {
+      setConfig_textField({
+        ...config_textField,
+        erro_senha: true,
+        variant_senha: 'filled',
+        helperText_senha: "As senhas entre os campos senha e repetir senha não são iguais."
+      })
+      return false;
+    }
+    /*
+     helperText_login: "O usuário ja existe. Tente outro.",
+     helperText_email: "Este email já foi cadastrado, insina outro.",
+    */
+    return true;
+  };
 
   const handleChance = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -47,10 +86,7 @@ const Cadastro = () => {
 
   const handleCadastro = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (pessoa.senha != pessoa.repeteSenha) {
-      alert("Senhas não compativeis")
-      return;
-    }
+    if (dados_corretos() == false) return;
 
     const data = {
       "name": pessoa.nome,
@@ -107,9 +143,11 @@ const Cadastro = () => {
           />
           <TextField
             required
+            error={config_textField.erro_email}
+            helperText={config_textField.helperText_email}
             type="text"
             name="email"
-            variant="outlined"
+            variant={config_textField.variant_email}
             label="Email"
             margin='normal'
             onChange={handleChance}
@@ -127,9 +165,11 @@ const Cadastro = () => {
           />
           <TextField
             required
+            error={config_textField.erro_login}
+            helperText={config_textField.helperText_login}
             type="text"
             name="loginDeUsuario"
-            variant="outlined"
+            variant={config_textField.variant_login}
             label="Login de usuário"
             margin='normal'
             onChange={handleChance}
@@ -137,9 +177,11 @@ const Cadastro = () => {
           />
           <TextField
             required
+            error={config_textField.erro_senha}
+            helperText={config_textField.helperText_senha}
             type="password"
             name="senha"
-            variant="outlined"
+            variant={config_textField.variant_senha}
             label="Senha"
             margin='normal'
             onChange={handleChance}
@@ -147,9 +189,11 @@ const Cadastro = () => {
           />
           <TextField
             required
+            error={config_textField.erro_senha}
+            helperText={config_textField.helperText_senha}
             type="password"
             name="repeat_senha"
-            variant="outlined"
+            variant={config_textField.variant_senha}
             label="Repetir senha"
             margin='normal'
             onChange={handleChance}
