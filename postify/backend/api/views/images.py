@@ -5,18 +5,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from ..models import Post
+from ..models import Image
 
 
-class PostViewSet(ViewSet):
+class ImageViewSet(ViewSet):
     # TODO: Retirar comentario para utilizar a autenticação
     # permission_classes = [IsAuthenticated]
 
-    def get_all_posts_active(self):
-        return Post.objects.filter(is_active=True)
+    def get_all_images(self):
+        return Image.objects.all()
 
-    def get_a_post_active(self, pk):
-        return Post.objects.filter(is_active=True, pk=pk)
+    def get_a_image(self, pk):
+        return Image.objects.filter(pk=pk)
 
     def list(self, request):
         """
@@ -28,30 +28,22 @@ class PostViewSet(ViewSet):
     @transaction.atomic
     def create(self, request):
         """
-        Create post.
-        POST /api/v1/posts/
+        Create image.
+        POST /api/v1/images/
         """
         pass
 
     def retrieve(self, request, pk=None):
         """
-        Get a post.
-        GET /api/v1/posts/pk/
-        """
-        pass
-
-    @transaction.atomic
-    def update(self, request, pk=None):
-        """
-        Update post.
-        PUT /api/v1/posts/pk/
+        Get a image.
+        GET /api/v1/images/pk/
         """
         pass
 
     @transaction.atomic
     def destroy(self, request, pk=None):
         """
-        Delete post.
-        DELETE /api/v1/posts/pk/
+        Delete image.
+        DELETE /api/v1/images/pk/
         """
         pass

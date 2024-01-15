@@ -3,7 +3,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import exceptions, serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import User
+from ..models import User
 
 
 class UserTokenObtainPairSerializer(TokenObtainPairSerializer):

@@ -16,6 +16,7 @@ Including another URLconf
 """
 from api.views import (
     ConfirmEmailView,
+    ImageViewSet,
     PostViewSet,
     UserRegisterViewSet,
     UserTokenObtainPairView,
@@ -33,6 +34,7 @@ router.register(r"users", UserViewSet, basename="user")
 router.register(r"register", UserRegisterViewSet, basename="register")
 router.register(r"register/confirm-email", ConfirmEmailView, basename="confirm-email")
 router.register(r"posts", PostViewSet, basename="post")
+router.register(r"images", ImageViewSet, basename="image")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
