@@ -128,7 +128,6 @@ const Cadastro = () => {
 
         if (dados_resposta.email != null) {
           campoEmail = true;
-          console.log("erro email")
         }
         if (dados_resposta.username != null) {
           campoUsuario = true;
@@ -142,12 +141,11 @@ const Cadastro = () => {
       } else {
         alert("Cadastro efetuado com sucesso!");
       }
-
     } catch (error) {
       console.error('Erro:', error);
     }
 
-    //return navigate('/')
+    return navigate('/')
   }
 
   const handleCancele = () => {
