@@ -2,6 +2,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import theme from "./components/theme";
+import "./index.css"
 
 //Configuração do router
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
