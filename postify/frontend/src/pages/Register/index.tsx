@@ -1,5 +1,5 @@
-import { Button, Container, Grid, Paper, TextField, TextFieldVariants, Typography } from "@mui/material";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { Button, Container, Grid, Paper, TextField, Typography } from "@mui/material";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Cadastro = () => {
@@ -10,44 +10,57 @@ const Cadastro = () => {
     nome: "", email: "", telefone: "", login: "", senha: "", repeteSenha: ""
   });
 
-  const [config_textField, setConfig_textField] = useState<{
-    erro_login: boolean,
-    variant_login: TextFieldVariants,
-    helperText_login: string,
-    erro_email: boolean,
-    variant_email: TextFieldVariants,
-    helperText_email: string,
-    erro_senha: boolean,
-    variant_senha: TextFieldVariants,
-    helperText_senha: string
-  }>({
-    erro_login: false,
-    variant_login: 'outlined',
-    helperText_login: "",
-    erro_email: false,
-    variant_email: 'outlined',
-    helperText_email: "",
-    erro_senha: false,
-    variant_senha: 'outlined',
-    helperText_senha: ""
+  const [campoErrado, setCampoErrado] = useState<{ username: boolean, email: boolean, password: boolean }>({
+    username: false, email: false, password: false
+  });
+  const [textoErro, setTextoErro] = useState<{ username: String, email: string, password: string }>({
+    username: "", email: "", password: ""
   })
 
-  function dados_corretos() {
-    if (pessoa.senha != pessoa.repeteSenha) {
-      setConfig_textField({
-        ...config_textField,
-        erro_senha: true,
-        variant_senha: 'filled',
-        helperText_senha: "As senhas entre os campos senha e repetir senha não são iguais."
+  useEffect(() => {
+    if (campoErrado.email == true) {
+      setTextoErro({
+        ...textoErro,
+        email: "Este email já está sendo usado."
       })
-      return false;
+    } else {
+      setTextoErro({
+        ...textoErro,
+        email: ""
+      })
     }
-    /*
-     helperText_login: "O usuário ja existe. Tente outro.",
-     helperText_email: "Este email já foi cadastrado, insina outro.",
-    */
-    return true;
-  };
+
+    if (campoErrado.username == true) {
+      setTextoErro({
+        ...textoErro,
+        username: "Este usuário já existe."
+      })
+    } else {
+      setTextoErro({
+        ...textoErro,
+        username: ""
+      })
+    }
+  }, [campoErrado])
+
+  useEffect(() => {
+    if ((pessoa.senha == pessoa.repeteSenha && pessoa.senha.length > 0 && pessoa.repeteSenha.length > 0) ||
+      (pessoa.senha.length == 0 && pessoa.repeteSenha.length == 0)) {
+      setCampoErrado({
+        ...campoErrado,
+        password: false
+      })
+      setTextoErro({
+        ...textoErro,
+        password: ""
+      })
+    } else {
+      setCampoErrado({
+        ...campoErrado,
+        password: true
+      })
+    }
+  }, [pessoa, setCampoErrado, campoErrado]);
 
   const handleChance = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -86,7 +99,7 @@ const Cadastro = () => {
 
   const handleCadastro = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (dados_corretos() == false) return;
+    if (campoErrado.password) return;
 
     const data = {
       "name": pessoa.nome,
@@ -106,13 +119,30 @@ const Cadastro = () => {
         body: JSON.stringify(data)
       }
       );
-      console.log(data)
+
       if (!resposta.ok) {
-        alert("Erro ao fazer cadastro, por favor, verifique se os dados estão corretos e tente novamente.");
-        throw new Error(`HTTP error! status: ${resposta.status}`);
+        let campoEmail = false;
+        let campoUsuario = false;
+        const dados_resposta = await resposta.json();
+        console.log(dados_resposta);
+
+        if (dados_resposta.email != null) {
+          campoEmail = true;
+          console.log("erro email")
+        }
+        if (dados_resposta.username != null) {
+          campoUsuario = true;
+        }
+
+        setCampoErrado({
+          ...campoErrado,
+          username: campoUsuario,
+          email: campoEmail
+        })
+      } else {
+        alert("Cadastro efetuado com sucesso!");
       }
 
-      alert("Cadastro efetuado com sucesso!")
     } catch (error) {
       console.error('Erro:', error);
     }
@@ -138,18 +168,20 @@ const Cadastro = () => {
             variant="outlined"
             label="Nome Completo"
             margin='normal'
+            value={pessoa.nome}
             onChange={handleChance}
             fullWidth
           />
           <TextField
             required
-            error={config_textField.erro_email}
-            helperText={config_textField.helperText_email}
+            error={campoErrado.email}
+            helperText={textoErro.email}
             type="text"
             name="email"
-            variant={config_textField.variant_email}
+            variant='outlined'
             label="Email"
             margin='normal'
+            value={pessoa.email}
             onChange={handleChance}
             fullWidth
           />
@@ -160,42 +192,46 @@ const Cadastro = () => {
             variant="outlined"
             label="Telefone"
             margin='normal'
+            value={pessoa.telefone}
             onChange={handleChance}
             fullWidth
           />
           <TextField
             required
-            error={config_textField.erro_login}
-            helperText={config_textField.helperText_login}
+            error={campoErrado.username}
+            helperText={textoErro.username}
             type="text"
             name="loginDeUsuario"
-            variant={config_textField.variant_login}
+            variant='outlined'
             label="Login de usuário"
             margin='normal'
+            value={pessoa.login}
             onChange={handleChance}
             fullWidth
           />
           <TextField
             required
-            error={config_textField.erro_senha}
-            helperText={config_textField.helperText_senha}
+            error={campoErrado.password}
+            helperText={textoErro.password}
             type="password"
             name="senha"
-            variant={config_textField.variant_senha}
+            variant='outlined'
             label="Senha"
             margin='normal'
+            value={pessoa.senha}
             onChange={handleChance}
             fullWidth
           />
           <TextField
             required
-            error={config_textField.erro_senha}
-            helperText={config_textField.helperText_senha}
+            error={campoErrado.password}
+            helperText={textoErro.password}
             type="password"
             name="repeat_senha"
-            variant={config_textField.variant_senha}
+            variant='outlined'
             label="Repetir senha"
             margin='normal'
+            value={pessoa.repeteSenha}
             onChange={handleChance}
             fullWidth
           />
