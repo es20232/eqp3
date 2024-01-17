@@ -143,7 +143,7 @@ DEFAULT_DOMAIN = "http://localhost:8000"
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "pt-br"
 
 TIME_ZONE = "America/Fortaleza"
 
