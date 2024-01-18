@@ -4,14 +4,16 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from rest_framework import parsers
 
-from ..models import Image
-from ..serializers import ImageSerializer
+from ..models import Image, User
+from ..serializers.image_serializers import ImageSerializer
 
 
 class ImageViewSet(ViewSet):
     # TODO: Retirar comentario para utilizar a autenticação
     # permission_classes = [IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser]
 
     def get_all_images(self):
         return Image.objects.all()
@@ -34,16 +36,28 @@ class ImageViewSet(ViewSet):
         Create image.
         POST /api/v1/images/
         """
-        image = request.data
-        
-        image_serializer = ImageSerializer(data=image)
-        if image_serializer.is_valid():
-            image = image_serializer.save()
-        else:
+        # Get the user from the request
+        user = request.data.get("user")
+        if user is None:
             return Response(
-                data=image_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                {"message": "User wasn't provided."}, status=status.HTTP_400_BAD_REQUEST
             )
-        return Response(status=status.HTTP_201_CREATED)
+        user = User.objects.filter(pk=user)
+        if user.exists() is False:
+            return Response(
+                {"message": "User not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        # Get the file from the multipart request
+        content = request.FILES['file']
+        if content is None:
+            return Response(
+                {"message": "Image wasn't provided."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create the image
+        image = Image.objects.create(image=content, user=user.get())
+        data = ImageSerializer(image).data
+        return Response(data=data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
         """

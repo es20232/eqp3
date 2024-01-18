@@ -59,8 +59,8 @@ class EmailConfirmation(models.Model):
 
 
 class Image(models.Model):
-    image = models.ImageField(validators=[validate_image_format])
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField('img', null=False, validators=[validate_image_format])
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -74,7 +74,7 @@ class Image(models.Model):
 class Post(models.Model):
     caption = models.CharField(max_length=255, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.OneToOneField(Image, on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
