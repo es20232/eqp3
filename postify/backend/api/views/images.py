@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from ..models import Image, User
-from ..serializers.image_serializers import ImageSerializer
+from ..serializers.image_serializers import ImageSerializer, UploadImageSerializer
 
 
 class CreateImageViewSet(ViewSet):
@@ -24,16 +24,14 @@ class CreateImageViewSet(ViewSet):
         """
         user = User.objects.filter(pk=pk, is_active=True)
         if user.exists():
-            image = request.FILES["image"]
-            if image is None:
-                return Response(
-                    {"message": "Image wasn't provided."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            image_data = {"image": request.FILES.get("image"), "user": user.get().pk}
+            serializer = UploadImageSerializer(data=image_data)
 
-            image = Image.objects.create(image=image, user=user.get())
-            data = ImageSerializer(image).data
-            return Response(data=data, status=status.HTTP_201_CREATED)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
                 {"message": "User not found."}, status=status.HTTP_404_NOT_FOUND
