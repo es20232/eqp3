@@ -16,6 +16,8 @@ Including another URLconf
 """
 from api.views import (
     ConfirmEmailView,
+    CreateImageViewSet,
+    ImagesFromUserViewSet,
     ImageViewSet,
     PostViewSet,
     UserRegisterViewSet,
@@ -39,6 +41,16 @@ router.register(r"images", ImageViewSet, basename="image")
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include((router.urls, "api"), namespace="postify")),
+    path(
+        "api/v1/users/<int:pk>/images/upload",
+        CreateImageViewSet.as_view(({"post": "image_upload"})),
+        name="user_image_upload",
+    ),
+    path(
+        "api/v1/users/<int:pk>/images",
+        ImagesFromUserViewSet.as_view(({"get": "images_from_user"})),
+        name="user_images",
+    ),
     path("api/v1/login", UserTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/v1/refresh", TokenRefreshView.as_view(), name="token_refresh"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
