@@ -59,15 +59,12 @@ class EmailConfirmation(models.Model):
 
 
 class Image(models.Model):
-    image = models.ImageField(validators=[validate_image_format])
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField("img", null=False, validators=[validate_image_format])
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.image.name = (
-                f"{self.user.id}/post_images/{self.image.name.split('.')[0]}.%s"
-                % self.image.name.split(".")[1]
-            )
+            self.image.name = f"{self.user.id}/post_images/{self.image.name}"
         return super(Image, self).save(*args, **kwargs)
 
 
@@ -107,12 +104,6 @@ class Comment(models.Model):
 
 
 class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-class Deslike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
