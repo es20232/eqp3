@@ -64,17 +64,14 @@ class Image(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.image.name = (
-                f"{self.user.id}/post_images/{self.image.name.split('.')[0]}.%s"
-                % self.image.name.split(".")[1]
-            )
+            self.image.name = f"{self.user.id}/post_images/{self.image.name}"
         return super(Image, self).save(*args, **kwargs)
 
 
 class Post(models.Model):
     caption = models.CharField(max_length=255, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    image = models.OneToOneField(Image, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
