@@ -23,6 +23,10 @@
   left: 0;
 }
 
+#area {
+  background-color: aliceblue;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
