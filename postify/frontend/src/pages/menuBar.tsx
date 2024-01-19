@@ -70,6 +70,18 @@ const MenuBar = () => {
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
 
+  const [searchValue, setSearchValue] = React.useState("");
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value);
+  };
+  
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log(searchValue);
+    navigate('search');
+  };
+  
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -105,15 +117,19 @@ const MenuBar = () => {
               </ListItem>
             </List>
             <div style={{ marginLeft: "auto", marginRight: 0 }}>
-              <Search>
-                <SearchIconWrapper>
-                  <SearchIcon />
-                </SearchIconWrapper>
-                <StyledInputBase
-                  placeholder="Pesquisar"
-                  inputProps={{ "aria-label": "search" }}
-                />
-              </Search>
+              <form id="searchUser" onSubmit={handleSubmit}>
+                <Search>
+                  <SearchIconWrapper>
+                    <SearchIcon />
+                  </SearchIconWrapper>
+                  <StyledInputBase
+                    placeholder="Pesquisar"
+                    inputProps={{ "aria-label": "search" }}
+                    value={searchValue}
+                    onChange={handleInputChange}
+                  />
+                </Search>
+              </form>
             </div>
             <Divider />
             {auth && (
@@ -175,17 +191,6 @@ const MenuBar = () => {
                     Meu perfil
                   </MenuItem>
                   <Divider />
-                  <MenuItem
-                    onClick={() => {
-                      handleClose();
-                      navigate("config");
-                    }}
-                  >
-                    <ListItemIcon>
-                      <Settings fontSize="small" />
-                    </ListItemIcon>
-                    Configurações
-                  </MenuItem>
                   <MenuItem
                     onClick={() => {
                       handleClose();
