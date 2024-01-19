@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { mainMenuItems } from "../components/mainMenuItems";
-import { Settings, Logout, Person } from "@mui/icons-material";
+import { Logout, Person } from "@mui/icons-material";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
