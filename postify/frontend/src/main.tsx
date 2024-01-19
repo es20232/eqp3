@@ -14,7 +14,6 @@ import LoginPage from './pages/Login/index.tsx';
 import Register from './pages/Register/index.tsx';
 //import Profile from './pages/UserProfile/index.tsx';
 import ErrorNotFound from './pages/errors/notFound.tsx';
-import MenuBar from './pages/menuBar.tsx';
 
 const router = createBrowserRouter([
   {
@@ -30,17 +29,21 @@ const router = createBrowserRouter([
   {
     path: "/home",
     element: < Home />,
-    errorElement: < ErrorNotFound />
-  },
-  /* {
-    path: "/profile",
-    element: < Profile />,
-    errorElement: < ErrorNotFound />
-  }, */
-  {
-    path: "/menu",
-    element: < MenuBar />,
-    errorElement: < ErrorNotFound />
+    errorElement: < ErrorNotFound />,
+    children: [
+      {
+        path: "save",
+        element: <ErrorNotFound/>
+      },
+      {
+        path: "profile",
+        element: <ErrorNotFound/>
+      },
+      {
+        path: "post",
+        element: <ErrorNotFound/>
+      },
+    ]
   },
 ])
 
