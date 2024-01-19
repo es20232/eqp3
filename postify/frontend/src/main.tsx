@@ -2,7 +2,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import theme from "./components/theme";
-import './index.css';
+import "./index.css"
 
 //Configuração do router
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Home from '../src/App.tsx';
 import LoginPage from './pages/Login/index.tsx';
 import Register from './pages/Register/index.tsx';
+//import Profile from './pages/UserProfile/index.tsx';
 import ErrorNotFound from './pages/errors/notFound.tsx';
 
 const router = createBrowserRouter([
@@ -28,7 +29,29 @@ const router = createBrowserRouter([
   {
     path: "/home",
     element: < Home />,
-    errorElement: < ErrorNotFound />
+    errorElement: < ErrorNotFound />,
+    children: [
+      {
+        path: "/home",
+        element: <ErrorNotFound/>
+      },
+      {
+        path: "save",
+        element: <ErrorNotFound/>
+      },
+      {
+        path: "profile",
+        element: <ErrorNotFound/>
+      },
+      {
+        path: "post",
+        element: <ErrorNotFound/>
+      },
+      {
+        path: "search",
+        element: <ErrorNotFound/>
+      },
+    ]
   },
 ])
 
