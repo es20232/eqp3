@@ -41,5 +41,4 @@ Copie o arquivo `.env-example` para um novo arquivo chamado `.env` e preencha co
 
 ```bash
 python manage.py makemigrations
-python manage.py migrate
 ```
