@@ -32,6 +32,10 @@ const router = createBrowserRouter([
     errorElement: < ErrorNotFound />,
     children: [
       {
+        path: "/home",
+        element: <ErrorNotFound/>
+      },
+      {
         path: "save",
         element: <ErrorNotFound/>
       },
@@ -41,6 +45,10 @@ const router = createBrowserRouter([
       },
       {
         path: "post",
+        element: <ErrorNotFound/>
+      },
+      {
+        path: "search",
         element: <ErrorNotFound/>
       },
     ]
