@@ -1,11 +1,15 @@
-import './App.css';
+import { Outlet } from "react-router-dom";
+import MenuBar from "./pages/menuBar";
 
 function App() {
   return (
     <>
-      <h1>App.tsx</h1>
+      <MenuBar />
+      <div id="area">
+        <Outlet/>
+      </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
