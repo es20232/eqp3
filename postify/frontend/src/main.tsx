@@ -12,8 +12,8 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Home from '../src/App.tsx';
 import LoginPage from './pages/Login/index.tsx';
 import Register from './pages/Register/index.tsx';
-//import Profile from './pages/UserProfile/index.tsx';
 import ErrorNotFound from './pages/errors/notFound.tsx';
+import Profile from './pages/UserProfile/index.tsx';
 
 const router = createBrowserRouter([
   {
@@ -41,7 +41,7 @@ const router = createBrowserRouter([
       },
       {
         path: "profile",
-        element: <ErrorNotFound/>
+        element: <Profile/>
       },
       {
         path: "post",
