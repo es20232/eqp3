@@ -10,7 +10,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from ..models import EmailConfirmation, User
-from ..serializers.users_serializers import (
+from ..serializers.user_serializers import (
     ChangePasswordSerializer,
     UserRegisterSerializer,
     UserSerializer,

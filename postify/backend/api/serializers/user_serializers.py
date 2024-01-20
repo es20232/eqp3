@@ -50,6 +50,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class SimplifiedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "name", "email", "profile_image"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

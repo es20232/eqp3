@@ -17,8 +17,10 @@ Including another URLconf
 from api.views import (
     ConfirmEmailView,
     CreateImageViewSet,
+    CreatePostViewSet,
     ImagesFromUserViewSet,
     ImageViewSet,
+    PostsFromUserViewSet,
     PostViewSet,
     UserRegisterViewSet,
     UserTokenObtainPairView,
@@ -43,13 +45,23 @@ urlpatterns = [
     path("api/v1/", include((router.urls, "api"), namespace="postify")),
     path(
         "api/v1/users/<int:pk>/images/upload",
-        CreateImageViewSet.as_view(({"post": "image_upload"})),
+        CreateImageViewSet.as_view({"post": "image_upload"}),
         name="user_image_upload",
     ),
     path(
         "api/v1/users/<int:pk>/images",
-        ImagesFromUserViewSet.as_view(({"get": "images_from_user"})),
+        ImagesFromUserViewSet.as_view({"get": "images_from_user"}),
         name="user_images",
+    ),
+    path(
+        "api/v1/users/<int:pk>/posts/create",
+        CreatePostViewSet.as_view({"post": "create_post"}),
+        name="user_post_create",
+    ),
+    path(
+        "api/v1/users/<int:pk>/posts",
+        PostsFromUserViewSet.as_view({"get": "posts_from_user"}),
+        name="user_posts",
     ),
     path("api/v1/login", UserTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/v1/refresh", TokenRefreshView.as_view(), name="token_refresh"),

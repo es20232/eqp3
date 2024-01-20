@@ -10,6 +10,9 @@ from ..serializers.image_serializers import ImageSerializer, UploadImageSerializ
 
 
 class CreateImageViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser]
+
     @transaction.atomic
     @action(
         detail=True,
@@ -39,6 +42,9 @@ class CreateImageViewSet(ViewSet):
 
 
 class ImagesFromUserViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser]
+
     @action(
         detail=True,
         methods=["GET"],
@@ -62,8 +68,7 @@ class ImagesFromUserViewSet(ViewSet):
 
 
 class ImageViewSet(ViewSet):
-    # TODO: Retirar comentario para utilizar a autenticação
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = [parsers.MultiPartParser]
 
     def get_a_image(self, pk):

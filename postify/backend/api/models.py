@@ -61,6 +61,7 @@ class EmailConfirmation(models.Model):
 class Image(models.Model):
     image = models.ImageField("img", null=False, validators=[validate_image_format])
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -76,11 +77,6 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     excluded_at = models.DateTimeField(null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        if self.image and self.image.post_set.exists():
-            raise ValidationError("This image has already been used in a post.")
-        super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         self.excluded_at = timezone.now()
