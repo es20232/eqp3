@@ -21,9 +21,32 @@
   padding: 0;
   top: 0;
   left: 0;
+  z-index: 1000;
+}
+
+#profile {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding-left: 0;
+  padding-top: 104px;
+  top: 0;
+  left:0;
+  overflow: auto;
 }
 
 #area {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
   background-color: aliceblue;
 }
 
