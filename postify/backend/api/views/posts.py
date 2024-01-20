@@ -5,7 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from ..models import Image, Like, Post, User
+from ..models import Comment, Image, Like, Post, User
+from ..serializers.comment_serializers import CommentSerializer
 from ..serializers.like_serializers import LikeSerializer
 from ..serializers.post_serializers import CreatePostSerializer, PostSerializer
 
@@ -66,6 +67,115 @@ class PostsFromUserViewSet(ViewSet):
             return Response(
                 {"message": "User not found."}, status=status.HTTP_404_NOT_FOUND
             )
+
+
+class CommentViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    def update(self, request, pk=None):
+        """
+        Update comment.
+        PUT /api/v1/comments/pk/
+        """
+
+        comment = Comment.objects.filter(pk=pk)
+
+        if comment.exists():
+            if request.user != comment.get().user:
+                return Response(
+                    {"message": "Permission denied."}, status=status.HTTP_403_FORBIDDEN
+                )
+
+            serializer = CommentSerializer(
+                comment.get(), data=request.data, partial=True
+            )
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(
+                {"detail": "Comment not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+    @transaction.atomic
+    def destroy(self, request, pk=None):
+        """
+        Delete a comment.
+        DELETE /api/v1/comments/pk
+        """
+        comment = Comment.objects.filter(pk=pk)
+
+        if not comment.exists():
+            return Response(
+                {"message": "Comment not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if request.user == comment.user or request.user == comment.post.user:
+            comment.get().delete()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": "Permission denied."}, status=status.HTTP_403_FORBIDDEN
+            )
+
+
+class CreateCommentViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    @action(
+        detail=True,
+        methods=["POST"],
+        url_path="comments/create",
+        url_name="comment-on-post",
+    )
+    def comment_on_post(self, request, pk=None):
+        post = Post.objects.filter(is_active=True, pk=pk)
+        if post.exists():
+            user = request.user
+
+            comment_data = {
+                "comment": request.data["comment"],
+                "user": user.pk,
+                "post": post.get().pk,
+            }
+
+            serializer = CommentSerializer(data=comment_data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {"message": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+        )
+
+
+class CommentsFromPostViewSet(ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    @action(
+        detail=True,
+        methods=["GET"],
+        url_path="comments",
+        url_name="comments-post",
+    )
+    def post_comments(self, request, pk=None):
+        post = Post.objects.filter(is_active=True, pk=pk)
+        if post.exists():
+            comments = Comment.objects.filter(post=post.get().pk)
+
+            serializer = CommentSerializer(data=comments, many=True)
+            if serializer.is_valid():
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {"message": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
 
 class PostViewSet(ViewSet):
@@ -147,9 +257,17 @@ class PostViewSet(ViewSet):
         try:
             post = self.get_a_post_active(pk)
             if post.exists():
-                serializer = PostSerializer(post.first(), data=request.data)
-                if serializer.is_valid(raise_exception=True):
-                    serializer.save(post=request.data)
+                if request.user != post.get().user:
+                    return Response(
+                        {"message": "Permission denied."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+
+                serializer = PostSerializer(
+                    post.first(), data=request.data, partial=True
+                )
+                if serializer.is_valid():
+                    serializer.save()
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:

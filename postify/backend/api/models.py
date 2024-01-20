@@ -88,15 +88,8 @@ class Comment(models.Model):
     comment = models.CharField(max_length=255, null=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    excluded_at = models.DateTimeField(null=True, blank=True)
-
-    def delete(self, *args, **kwargs):
-        self.excluded_at = timezone.now()
-        self.is_active = False
-        self.save(update_fields=["excluded_at", "is_active"])
 
 
 class Like(models.Model):
