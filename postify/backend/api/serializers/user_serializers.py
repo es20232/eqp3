@@ -13,7 +13,6 @@ class UserTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if username and password:
             user = authenticate(username=username, password=password)
-            print(user)
 
             if user and user.is_active:
                 refresh = self.get_token(user)
