@@ -8,25 +8,45 @@ const api = axios.create({
 })
 
 const ApiConfig = () => {
-  const { accessToken, logout } = useAuthStore()
+  const { accessToken, refreshToken, logout, updateTokens } = useAuthStore()
+
+  const refreshAccessToken = async () => {
+    await api
+      .post('/api/v1/refresh', {
+        refresh: refreshToken,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          updateTokens(response.data.access)
+        } else {
+          logout()
+        }
+      })
+      .catch((e) => {
+        console.log(e)
+        logout()
+      })
+  }
 
   useEffect(() => {
-    if (tokenIsValid(accessToken)) {
-      api.interceptors.request.use(
-        (config) => {
-          if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`
-          }
-          return config
-        },
-        (error) => {
-          return Promise.reject(error)
-        },
-      )
-    } else {
-      logout()
+    if (accessToken) {
+      if (tokenIsValid(accessToken)) {
+        api.interceptors.request.use(
+          async (config) => {
+            if (accessToken) {
+              config.headers.Authorization = `Bearer ${accessToken}`
+            }
+            return config
+          },
+          (error) => {
+            return Promise.reject(error)
+          },
+        )
+      } else {
+        refreshAccessToken()
+      }
     }
-  }, [accessToken, logout])
+  }, [accessToken, logout, refreshToken, updateTokens])
 
   return null
 }

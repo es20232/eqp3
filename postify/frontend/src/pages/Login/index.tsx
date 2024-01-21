@@ -60,9 +60,9 @@ const Login = () => {
                     label="Login"
                     variant="outlined"
                     fullWidth
-                    {...register('login')}
-                    error={!!errors.login}
-                    helperText={errors.login?.message}
+                    {...register('username')}
+                    error={!!errors.username}
+                    helperText={errors.username?.message}
                   />
                   <TextField
                     id="password"

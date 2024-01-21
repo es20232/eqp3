@@ -15,6 +15,7 @@ interface AuthStoreActions extends AuthStoreState {
     username: string | null,
   ) => void
   logout: () => void
+  updateTokens: (accessToken: string) => void
 }
 
 const useAuthStore = create<AuthStoreActions>()(
@@ -34,6 +35,9 @@ const useAuthStore = create<AuthStoreActions>()(
           username: '',
           isAuthenticated: false,
         })
+      },
+      updateTokens: (accessToken) => {
+        set({ accessToken })
       },
     }),
     {
