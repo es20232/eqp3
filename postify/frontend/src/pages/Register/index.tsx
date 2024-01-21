@@ -1,161 +1,188 @@
-import { Button, Container, Grid, Paper, TextField, Typography } from "@mui/material";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  Button,
+  Container,
+  Grid,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { api } from '../../utils/api/api'
 
 const Cadastro = () => {
-  const navigate = useNavigate();
-  const URL = "http://127.0.0.1:8000"
+  const navigate = useNavigate()
 
-  const [pessoa, setPessoa] = useState<{ nome: string, email: string, telefone: string, login: string, senha: string, repeteSenha: string }>({
-    nome: "", email: "", telefone: "", login: "", senha: "", repeteSenha: ""
-  });
+  const [pessoa, setPessoa] = useState<{
+    nome: string
+    email: string
+    telefone: string
+    login: string
+    senha: string
+    repeteSenha: string
+  }>({
+    nome: '',
+    email: '',
+    telefone: '',
+    login: '',
+    senha: '',
+    repeteSenha: '',
+  })
 
-  const [campoErrado, setCampoErrado] = useState<{ username: boolean, email: boolean, password: boolean }>({
-    username: false, email: false, password: false
-  });
-  const [textoErro, setTextoErro] = useState<{ username: String, email: string, password: string }>({
-    username: "", email: "", password: ""
+  const [campoErrado, setCampoErrado] = useState<{
+    username: boolean
+    email: boolean
+    password: boolean
+  }>({
+    username: false,
+    email: false,
+    password: false,
+  })
+  const [textoErro, setTextoErro] = useState<{
+    username: string
+    email: string
+    password: string
+  }>({
+    username: '',
+    email: '',
+    password: '',
   })
 
   useEffect(() => {
-    if (campoErrado.email == true) {
+    if (campoErrado.email === true) {
       setTextoErro({
         ...textoErro,
-        email: "Este email já está sendo usado."
+        email: 'Este email já está sendo usado.',
       })
     } else {
       setTextoErro({
         ...textoErro,
-        email: ""
+        email: '',
       })
     }
 
-    if (campoErrado.username == true) {
+    if (campoErrado.username === true) {
       setTextoErro({
         ...textoErro,
-        username: "Este usuário já existe."
+        username: 'Este usuário já existe.',
       })
     } else {
       setTextoErro({
         ...textoErro,
-        username: ""
+        username: '',
       })
     }
-  }, [campoErrado])
+  }, [campoErrado, textoErro])
 
   useEffect(() => {
-    if ((pessoa.senha == pessoa.repeteSenha && pessoa.senha.length > 0 && pessoa.repeteSenha.length > 0) ||
-      (pessoa.senha.length == 0 && pessoa.repeteSenha.length == 0)) {
+    if (
+      (pessoa.senha === pessoa.repeteSenha &&
+        pessoa.senha.length > 0 &&
+        pessoa.repeteSenha.length > 0) ||
+      (pessoa.senha.length === 0 && pessoa.repeteSenha.length === 0)
+    ) {
       setCampoErrado({
         ...campoErrado,
-        password: false
+        password: false,
       })
       setTextoErro({
         ...textoErro,
-        password: ""
+        password: '',
       })
     } else {
       setCampoErrado({
         ...campoErrado,
-        password: true
+        password: true,
       })
     }
-  }, [pessoa, setCampoErrado, campoErrado]);
+  }, [pessoa, setCampoErrado, campoErrado, textoErro])
 
   const handleChance = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name == "nome") {
+    const { name, value } = e.target
+    if (name === 'nome') {
       setPessoa({
         ...pessoa,
-        nome: value
+        nome: value,
       })
-    } else if (name == "email") {
+    } else if (name === 'email') {
       setPessoa({
         ...pessoa,
-        email: value
+        email: value,
       })
-    } else if (name == "telefone") {
+    } else if (name === 'telefone') {
       setPessoa({
         ...pessoa,
-        telefone: value
+        telefone: value,
       })
-    } else if (name == "loginDeUsuario") {
+    } else if (name === 'loginDeUsuario') {
       setPessoa({
         ...pessoa,
-        login: value
+        login: value,
       })
-    } else if (name == "senha") {
+    } else if (name === 'senha') {
       setPessoa({
         ...pessoa,
-        senha: value
+        senha: value,
       })
-    } else if (name == "repeat_senha") {
+    } else if (name === 'repeat_senha') {
       setPessoa({
         ...pessoa,
-        repeteSenha: value
+        repeteSenha: value,
       })
     }
-  };
+  }
 
   const handleCadastro = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (campoErrado.password) return;
+    e.preventDefault()
+    if (campoErrado.password) return
 
     const data = {
-      "name": pessoa.nome,
-      "username": pessoa.login,
-      "email": pessoa.email,
-      "password": pessoa.senha,
-      "phone_number": pessoa.telefone
-    };
+      name: pessoa.nome,
+      username: pessoa.login,
+      email: pessoa.email,
+      password: pessoa.senha,
+      phone_number: pessoa.telefone,
+    }
 
     try {
-      const resposta = await fetch(
-        URL + "/api/v1/register/", {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      }
-      );
+      const resposta = await api.post('/api/v1/register/', data)
 
-      if (!resposta.ok) {
-        let campoEmail = false;
-        let campoUsuario = false;
-        const dados_resposta = await resposta.json();
-        console.log(dados_resposta);
+      if (resposta.status === 201) {
+        let campoEmail = false
+        let campoUsuario = false
+        const dadosResposta = await resposta.data()
+        console.log(dadosResposta)
 
-        if (dados_resposta.email != null) {
-          campoEmail = true;
+        if (dadosResposta.email != null) {
+          campoEmail = true
         }
-        if (dados_resposta.username != null) {
-          campoUsuario = true;
+        if (dadosResposta.username != null) {
+          campoUsuario = true
         }
 
         setCampoErrado({
           ...campoErrado,
           username: campoUsuario,
-          email: campoEmail
+          email: campoEmail,
         })
       } else {
-        alert("Cadastro efetuado com sucesso!");
+        alert('Cadastro efetuado com sucesso!')
       }
     } catch (error) {
-      console.error('Erro:', error);
+      console.error('Erro:', error)
     }
 
     return navigate('/')
   }
 
   const handleCancele = () => {
-    return navigate("/");
+    return navigate('/')
   }
 
   return (
     <Container maxWidth={'sm'}>
       <Paper elevation={4} style={{ padding: '20px', marginTop: '20px' }}>
-        <Typography align="center" variant='h6'>
+        <Typography align="center" variant="h6">
           Cadastro de Novo usuário
         </Typography>
         <form onSubmit={handleCadastro} autoComplete="off">
@@ -165,7 +192,7 @@ const Cadastro = () => {
             name="nome"
             variant="outlined"
             label="Nome Completo"
-            margin='normal'
+            margin="normal"
             value={pessoa.nome}
             onChange={handleChance}
             fullWidth
@@ -176,9 +203,9 @@ const Cadastro = () => {
             helperText={textoErro.email}
             type="text"
             name="email"
-            variant='outlined'
+            variant="outlined"
             label="Email"
-            margin='normal'
+            margin="normal"
             value={pessoa.email}
             onChange={handleChance}
             fullWidth
@@ -189,7 +216,7 @@ const Cadastro = () => {
             name="telefone"
             variant="outlined"
             label="Telefone"
-            margin='normal'
+            margin="normal"
             value={pessoa.telefone}
             onChange={handleChance}
             fullWidth
@@ -200,9 +227,9 @@ const Cadastro = () => {
             helperText={textoErro.username}
             type="text"
             name="loginDeUsuario"
-            variant='outlined'
+            variant="outlined"
             label="Login de usuário"
-            margin='normal'
+            margin="normal"
             value={pessoa.login}
             onChange={handleChance}
             fullWidth
@@ -213,9 +240,9 @@ const Cadastro = () => {
             helperText={textoErro.password}
             type="password"
             name="senha"
-            variant='outlined'
+            variant="outlined"
             label="Senha"
-            margin='normal'
+            margin="normal"
             value={pessoa.senha}
             onChange={handleChance}
             fullWidth
@@ -226,16 +253,25 @@ const Cadastro = () => {
             helperText={textoErro.password}
             type="password"
             name="repeat_senha"
-            variant='outlined'
+            variant="outlined"
             label="Repetir senha"
-            margin='normal'
+            margin="normal"
             value={pessoa.repeteSenha}
             onChange={handleChance}
             fullWidth
           />
-          <Grid container display={"flex"} justifyContent={"space-around"} marginTop={'20px'}>
+          <Grid
+            container
+            display={'flex'}
+            justifyContent={'space-around'}
+            marginTop={'20px'}
+          >
             <Grid item>
-              <Button variant="contained" color="primary" onClick={handleCancele}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleCancele}
+              >
                 Cancelar
               </Button>
             </Grid>
@@ -246,9 +282,9 @@ const Cadastro = () => {
             </Grid>
           </Grid>
         </form>
-      </ Paper>
-    </ Container>
+      </Paper>
+    </Container>
   )
 }
 
-export default Cadastro;
+export default Cadastro

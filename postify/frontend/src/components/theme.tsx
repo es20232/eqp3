@@ -1,19 +1,19 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles'
 
-const cor_primaria = '#f5f5f5';
-const cor_secundaria = '#0C4802';
+const corPrimaria = '#f5f5f5'
+const corSecundaria = '#0C4802'
 
 export default function theme() {
   return createTheme({
     palette: {
       primary: {
-        main: cor_secundaria
+        main: corSecundaria,
       },
       secondary: {
-        main: cor_primaria
+        main: corPrimaria,
       },
       background: {
-        default: "#0C1A09",
+        default: '#0C1A09',
       },
     },
     components: {
@@ -21,31 +21,31 @@ export default function theme() {
         styleOverrides: {
           root: {
             borderRadius: 10,
-            background: cor_secundaria,
-            color: cor_primaria,
+            background: corSecundaria,
+            color: corPrimaria,
             paddingLeft: '20px',
-            paddingRight: '20px'
+            paddingRight: '20px',
           },
         },
       },
       MuiTextField: {
         styleOverrides: {
           root: {
-            borderColor: cor_secundaria,
+            borderColor: corSecundaria,
             borderWidth: '10px',
             '& .MuiInputBase-input': {
               height: '10px',
-            }
-          }
-        }
+            },
+          },
+        },
       },
       MuiCssBaseline: {
         styleOverrides: `
           .link {
-            color: cor_primaria;
+            color: corPrimaria;
           }
         `,
       },
     },
-  });
+  })
 }

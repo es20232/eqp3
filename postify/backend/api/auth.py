@@ -5,11 +5,11 @@ from rest_framework.exceptions import AuthenticationFailed
 
 
 class UserBackend(ModelBackend):
-    def authenticate(self, request, email, password):
+    def authenticate(self, request, username, password):
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(username=username)
             if user.check_password(password):
                 update_last_login(None, user)
                 return user
         except User.DoesNotExist:
-            raise AuthenticationFailed("Invalid email or password.")
+            raise AuthenticationFailed("Invalid login or password.")
