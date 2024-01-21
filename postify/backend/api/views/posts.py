@@ -40,7 +40,8 @@ class CreatePostViewSet(ViewSet):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(
-            {"message": "User/Image not found."}, status=status.HTTP_404_NOT_FOUND
+            {"message": "Usuário ou Imagem não encontrados."},
+            status=status.HTTP_404_NOT_FOUND,
         )
 
 
@@ -65,7 +66,7 @@ class PostsFromUserViewSet(ViewSet):
             return Response(data=data, status=status.HTTP_200_OK)
         else:
             return Response(
-                {"message": "User not found."}, status=status.HTTP_404_NOT_FOUND
+                {"message": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND
             )
 
 
@@ -84,7 +85,7 @@ class CommentViewSet(ViewSet):
         if comment.exists():
             if request.user != comment.get().user:
                 return Response(
-                    {"message": "Permission denied."}, status=status.HTTP_403_FORBIDDEN
+                    {"message": "Permissão negada."}, status=status.HTTP_403_FORBIDDEN
                 )
 
             serializer = CommentSerializer(
@@ -96,7 +97,8 @@ class CommentViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
-                {"detail": "Comment not found."}, status=status.HTTP_404_NOT_FOUND
+                {"detail": "Comentário não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
     @transaction.atomic
@@ -109,7 +111,8 @@ class CommentViewSet(ViewSet):
 
         if not comment.exists():
             return Response(
-                {"message": "Comment not found."}, status=status.HTTP_404_NOT_FOUND
+                {"message": "Comentário não encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         if request.user == comment.user or request.user == comment.post.user:
@@ -117,7 +120,7 @@ class CommentViewSet(ViewSet):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(
-                {"message": "Permission denied."}, status=status.HTTP_403_FORBIDDEN
+                {"message": "Permissão negada."}, status=status.HTTP_403_FORBIDDEN
             )
 
 
@@ -149,7 +152,7 @@ class CreateCommentViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(
-            {"message": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+            {"message": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -174,7 +177,7 @@ class CommentsFromPostViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(
-            {"message": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+            {"message": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -225,7 +228,7 @@ class PostViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(
-            {"message": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+            {"message": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
         )
 
     @transaction.atomic
@@ -241,7 +244,7 @@ class PostViewSet(ViewSet):
                 return Response(serialized_post.data, status=status.HTTP_200_OK)
             else:
                 return Response(
-                    {"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
                 )
         except Exception as e:
             return Response(
@@ -259,7 +262,7 @@ class PostViewSet(ViewSet):
             if post.exists():
                 if request.user != post.get().user:
                     return Response(
-                        {"message": "Permission denied."},
+                        {"message": "Permissão negada."},
                         status=status.HTTP_403_FORBIDDEN,
                     )
 
@@ -272,7 +275,7 @@ class PostViewSet(ViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(
-                    {"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
                 )
         except Exception as e:
             return Response(
@@ -292,7 +295,7 @@ class PostViewSet(ViewSet):
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(
-                    {"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
                 )
         except Exception as e:
             return Response(

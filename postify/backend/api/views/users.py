@@ -89,7 +89,7 @@ class UserViewSet(ViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(
-                {"message": "User not found."}, status=status.HTTP_404_NOT_FOUND
+                {"message": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND
             )
 
     @transaction.atomic
@@ -157,5 +157,5 @@ class UserViewSet(ViewSet):
             user.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {"message": "User not found."}, status=status.HTTP_404_NOT_FOUND
+            {"message": "Usuário não encontrado."}, status=status.HTTP_404_NOT_FOUND
         )

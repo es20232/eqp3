@@ -7,14 +7,13 @@ from ..models import User
 
 
 class UserTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = User.EMAIL_FIELD
-
     def validate(self, attrs):
-        email = attrs.get("email")
+        username = attrs.get("username")
         password = attrs.get("password")
 
-        if email and password:
-            user = authenticate(email=email, password=password)
+        if username and password:
+            user = authenticate(username=username, password=password)
+            print(user)
 
             if user and user.is_active:
                 refresh = self.get_token(user)
@@ -26,9 +25,9 @@ class UserTokenObtainPairSerializer(TokenObtainPairSerializer):
 
                 return data
             else:
-                raise exceptions.AuthenticationFailed("Invalid email or password.")
+                raise exceptions.AuthenticationFailed("Login ou senha inválidos.")
         else:
-            raise exceptions.AuthenticationFailed("Email and password are required.")
+            raise exceptions.AuthenticationFailed("Login e senha são obrigatórios.")
 
     @classmethod
     def get_token(cls, user):
