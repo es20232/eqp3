@@ -1,12 +1,45 @@
-import { Button, Container, Grid, Link, Paper, TextField, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  Button,
+  Container,
+  Grid,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { api } from '../../utils/api/api'
+import { getUsernameFromToken } from '../../utils/auth/getUsernameFromToken'
+import { loginFormData, loginSchema } from '../../utils/schemas/loginSchema'
+import useAuthStore from '../../utils/stores/authStore'
 
 const Login = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const { login } = useAuthStore()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<loginFormData>({
+    resolver: zodResolver(loginSchema),
+  })
 
-  function handleLogin() {
-    return navigate('/home')
+  const onSubmit: SubmitHandler<loginFormData> = async (data) => {
+    await api
+      .post('api/v1/login', data)
+      .then((response) => {
+        login(
+          response.data.access,
+          response.data.refresh,
+          getUsernameFromToken(response.data.access),
+        )
+        navigate('/home')
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 
   return (
@@ -14,34 +47,46 @@ const Login = () => {
       <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
         <Grid container>
           <Grid item xs={12} marginBottom={'10px'}>
-            <Typography align='center' variant='h4'>
+            <Typography align="center" variant="h4">
               Login de usuário
             </Typography>
           </Grid>
           <Grid item sm={12} marginBottom={'10px'}>
-            <form onSubmit={handleLogin} autoComplete='off'>
+            <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
               <Grid container spacing={6} alignItems={'center'}>
                 <Grid item sm={8}>
                   <TextField
-                    id="usuario"
-                    label="Usuário"
-                    variant='outlined'
+                    id="login"
+                    label="Login"
+                    variant="outlined"
                     fullWidth
+                    {...register('login')}
+                    error={!!errors.login}
+                    helperText={errors.login?.message}
                   />
                   <TextField
-                    id="senha"
+                    id="password"
                     label="Senha"
-                    variant='outlined'
-                    margin='normal'
+                    variant="outlined"
+                    margin="normal"
+                    type="password"
                     fullWidth
+                    {...register('password')}
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
                   />
                 </Grid>
                 <Grid item sm={4}>
                   <Button
-                    type='submit'
-                    variant='contained'
+                    type="submit"
+                    variant="contained"
                     color="primary"
-                    style={{ borderRadius: '38px', paddingTop: '10px', paddingBottom: '10px' }}>
+                    style={{
+                      borderRadius: '38px',
+                      paddingTop: '10px',
+                      paddingBottom: '10px',
+                    }}
+                  >
                     Logar
                   </Button>
                 </Grid>
@@ -58,10 +103,7 @@ const Login = () => {
             >
               Cadastrar
             </Link>
-            <Link
-              component="button"
-              variant="body2"
-            >
+            <Link component="button" variant="body2">
               Esqueci a senha
             </Link>
           </Grid>
@@ -71,4 +113,4 @@ const Login = () => {
   )
 }
 
-export default Login;
+export default Login
