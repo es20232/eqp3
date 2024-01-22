@@ -1,4 +1,5 @@
 import { Logout, Person } from '@mui/icons-material'
+import SettingsIcon from '@mui/icons-material/Settings';
 import SearchIcon from '@mui/icons-material/Search'
 import {
   Avatar,
@@ -183,13 +184,19 @@ const MenuBar = () => {
                 <MenuItem
                   onClick={() => {
                     handleClose()
-                    navigate('profile')
+                    navigate('/profile')
                   }}
                 >
                   <ListItemIcon>
                     <Person />
                   </ListItemIcon>
                   Meu perfil
+                </MenuItem>
+                <MenuItem onClick={() => {handleClose(); navigate('/profile/edit')}}>
+                  <ListItemIcon>
+                    <SettingsIcon/>
+                  </ListItemIcon>
+                  Configurações
                 </MenuItem>
                 <Divider />
                 <MenuItem
