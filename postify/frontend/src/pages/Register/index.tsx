@@ -34,7 +34,7 @@ const Cadastro = () => {
     await api
       .post('/api/v1/register/', data)
       .then(() => {
-        return navigate('/home/')
+        navigate('/')
       })
       .catch((error) => {
         const data = error.response.data;
