@@ -10,7 +10,7 @@ export const registerSchema = z
       .max(50, { message: 'O campo não pode ultrapassar mais que 50 caracteres.' }),
     username: z.string().min(1, { message: 'O login não pode estar vazia.' })
       .max(30, { message: 'O campo não pode ultrapassar mais que 30 caracteres.' }),
-    password: z.string().min(1, { message: 'A senha não pode estar vazia.' })
+    password: z.string().min(6, { message: 'A senha deve conter, no mínimo, 6 caracteres.' })
       .max(30, { message: 'O campo não pode ultrapassar mais que 30 caracteres.' }),
     repeatPassword: z.string().min(1, { message: 'A senha não pode estar vazia.' })
       .max(30, { message: 'O campo não pode ultrapassar mais que 30 caracteres.' }),

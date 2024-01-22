@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  Alert,
   Button,
   Container,
   Grid,
@@ -7,6 +8,7 @@ import {
   TextField,
   Typography
 } from '@mui/material'
+import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../utils/api/api'
@@ -24,6 +26,10 @@ const Cadastro = () => {
     resolver: zodResolver(registerSchema),
   })
 
+  const [registryError, setRegistryError] = useState<{ error: boolean, message: string[] }>({
+    error: false, message: []
+  })
+
   const onSubmit: SubmitHandler<registerFormData> = async (data) => {
     await api
       .post('/api/v1/register/', data)
@@ -31,25 +37,23 @@ const Cadastro = () => {
         return navigate('/home/')
       })
       .catch((error) => {
-        let predictedError = false;
         const data = error.response.data;
-        console.log(data);
+        let predictedError = false;
+        let message = "";
+
         if (error.response.status === 400 && data.username) {
-          setError("username", {
-            type: "manual",
-            message: data.username[0]
-          })
+          setError("username", {});
           predictedError = true;
+          message = data.username[0] + "\n";
         }
         if (error.response.status === 400 && data.email) {
-          setError("email", {
-            type: "manual",
-            message: data.email[0]
-          })
+          setError("email", {});
           predictedError = true;
+          message += data.email[0]
         }
 
-        if (!predictedError) console.log(error);
+        if (!predictedError) setRegistryError({ error: false, message: [] })
+        else setRegistryError({ error: true, message: message.split("\n") })
       })
   }
 
@@ -126,6 +130,13 @@ const Cadastro = () => {
             error={!!errors.repeatPassword}
             helperText={errors.repeatPassword?.message}
           />
+          {registryError.error &&
+            <Alert variant='standard' severity='error' style={{ alignItems: 'center' }}>
+              {registryError.message.map((line, i) =>
+                <p key={i}>{line}</p>
+              )}
+            </Alert>
+          }
           <Grid
             container
             display={'flex'}
