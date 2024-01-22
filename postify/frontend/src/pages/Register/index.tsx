@@ -1,178 +1,56 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
   Container,
   Grid,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material'
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../utils/api/api'
+import { registerFormData, registerSchema } from '../../utils/schemas/registerSchema'
 
 const Cadastro = () => {
   const navigate = useNavigate()
 
-  const [pessoa, setPessoa] = useState<{
-    nome: string
-    email: string
-    telefone: string
-    login: string
-    senha: string
-    repeteSenha: string
-  }>({
-    nome: '',
-    email: '',
-    telefone: '',
-    login: '',
-    senha: '',
-    repeteSenha: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError
+  } = useForm<registerFormData>({
+    resolver: zodResolver(registerSchema),
   })
 
-  const [campoErrado, setCampoErrado] = useState<{
-    username: boolean
-    email: boolean
-    password: boolean
-  }>({
-    username: false,
-    email: false,
-    password: false,
-  })
-  const [textoErro, setTextoErro] = useState<{
-    username: string
-    email: string
-    password: string
-  }>({
-    username: '',
-    email: '',
-    password: '',
-  })
-
-  useEffect(() => {
-    if (campoErrado.email === true) {
-      setTextoErro({
-        ...textoErro,
-        email: 'Este email já está sendo usado.',
+  const onSubmit: SubmitHandler<registerFormData> = async (data) => {
+    await api
+      .post('/api/v1/register/', data)
+      .then(() => {
+        return navigate('/home/')
       })
-    } else {
-      setTextoErro({
-        ...textoErro,
-        email: '',
-      })
-    }
-
-    if (campoErrado.username === true) {
-      setTextoErro({
-        ...textoErro,
-        username: 'Este usuário já existe.',
-      })
-    } else {
-      setTextoErro({
-        ...textoErro,
-        username: '',
-      })
-    }
-  }, [campoErrado, textoErro])
-
-  useEffect(() => {
-    if (
-      (pessoa.senha === pessoa.repeteSenha &&
-        pessoa.senha.length > 0 &&
-        pessoa.repeteSenha.length > 0) ||
-      (pessoa.senha.length === 0 && pessoa.repeteSenha.length === 0)
-    ) {
-      setCampoErrado({
-        ...campoErrado,
-        password: false,
-      })
-      setTextoErro({
-        ...textoErro,
-        password: '',
-      })
-    } else {
-      setCampoErrado({
-        ...campoErrado,
-        password: true,
-      })
-    }
-  }, [pessoa, setCampoErrado, campoErrado, textoErro])
-
-  const handleChance = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    if (name === 'nome') {
-      setPessoa({
-        ...pessoa,
-        nome: value,
-      })
-    } else if (name === 'email') {
-      setPessoa({
-        ...pessoa,
-        email: value,
-      })
-    } else if (name === 'telefone') {
-      setPessoa({
-        ...pessoa,
-        telefone: value,
-      })
-    } else if (name === 'loginDeUsuario') {
-      setPessoa({
-        ...pessoa,
-        login: value,
-      })
-    } else if (name === 'senha') {
-      setPessoa({
-        ...pessoa,
-        senha: value,
-      })
-    } else if (name === 'repeat_senha') {
-      setPessoa({
-        ...pessoa,
-        repeteSenha: value,
-      })
-    }
-  }
-
-  const handleCadastro = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (campoErrado.password) return
-
-    const data = {
-      name: pessoa.nome,
-      username: pessoa.login,
-      email: pessoa.email,
-      password: pessoa.senha,
-      phone_number: pessoa.telefone,
-    }
-
-    try {
-      const resposta = await api.post('/api/v1/register/', data)
-
-      if (resposta.status === 201) {
-        let campoEmail = false
-        let campoUsuario = false
-        const dadosResposta = await resposta.data()
-        console.log(dadosResposta)
-
-        if (dadosResposta.email != null) {
-          campoEmail = true
+      .catch((error) => {
+        let predictedError = false;
+        const data = error.response.data;
+        console.log(data);
+        if (error.response.status === 400 && data.username) {
+          setError("username", {
+            type: "manual",
+            message: data.username[0]
+          })
+          predictedError = true;
         }
-        if (dadosResposta.username != null) {
-          campoUsuario = true
+        if (error.response.status === 400 && data.email) {
+          setError("email", {
+            type: "manual",
+            message: data.email[0]
+          })
+          predictedError = true;
         }
 
-        setCampoErrado({
-          ...campoErrado,
-          username: campoUsuario,
-          email: campoEmail,
-        })
-      } else {
-        alert('Cadastro efetuado com sucesso!')
-      }
-    } catch (error) {
-      console.error('Erro:', error)
-    }
-
-    return navigate('/')
+        if (!predictedError) console.log(error);
+      })
   }
 
   const handleCancele = () => {
@@ -185,80 +63,68 @@ const Cadastro = () => {
         <Typography align="center" variant="h6">
           Cadastro de Novo usuário
         </Typography>
-        <form onSubmit={handleCadastro} autoComplete="off">
+        <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
           <TextField
-            required
+            fullWidth
             type="text"
-            name="nome"
             variant="outlined"
             label="Nome Completo"
             margin="normal"
-            value={pessoa.nome}
-            onChange={handleChance}
-            fullWidth
+            {...register('name')}
+            error={!!errors.name}
+            helperText={errors.name?.message}
           />
           <TextField
-            required
-            error={campoErrado.email}
-            helperText={textoErro.email}
+            fullWidth
             type="text"
-            name="email"
             variant="outlined"
             label="Email"
+            placeholder='ex: teste@gmail.com'
             margin="normal"
-            value={pessoa.email}
-            onChange={handleChance}
-            fullWidth
+            {...register('email')}
+            error={!!errors.email}
+            helperText={errors.email?.message}
           />
           <TextField
-            required
+            fullWidth
             type="number"
-            name="telefone"
             variant="outlined"
             label="Telefone"
             margin="normal"
-            value={pessoa.telefone}
-            onChange={handleChance}
-            fullWidth
+            placeholder='ex: 86911111111'
+            {...register('phone_number')}
+            error={!!errors.phone_number}
+            helperText={errors.phone_number?.message}
           />
           <TextField
-            required
-            error={campoErrado.username}
-            helperText={textoErro.username}
+            fullWidth
             type="text"
-            name="loginDeUsuario"
             variant="outlined"
             label="Login de usuário"
             margin="normal"
-            value={pessoa.login}
-            onChange={handleChance}
-            fullWidth
+            {...register('username')}
+            error={!!errors.username}
+            helperText={errors.username?.message}
           />
           <TextField
-            required
-            error={campoErrado.password}
-            helperText={textoErro.password}
+            fullWidth
             type="password"
-            name="senha"
             variant="outlined"
             label="Senha"
             margin="normal"
-            value={pessoa.senha}
-            onChange={handleChance}
-            fullWidth
+            {...register('password')}
+            error={!!errors.password}
+            helperText={errors.password?.message}
           />
           <TextField
-            required
-            error={campoErrado.password}
-            helperText={textoErro.password}
+            fullWidth
             type="password"
-            name="repeat_senha"
             variant="outlined"
             label="Repetir senha"
             margin="normal"
-            value={pessoa.repeteSenha}
-            onChange={handleChance}
-            fullWidth
+            {...register('repeatPassword')}
+            error={!!errors.repeatPassword}
+            helperText={errors.repeatPassword?.message}
           />
           <Grid
             container
