@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../utils/api/api'
@@ -26,6 +27,10 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   })
 
+  const [loginError, setLoginError] = useState<{ message: string, error: boolean }>({
+    message: "", error: false
+  })
+
   const onSubmit: SubmitHandler<loginFormData> = async (data) => {
     await api
       .post('api/v1/login', data)
@@ -38,7 +43,11 @@ const Login = () => {
         navigate('/home')
       })
       .catch((error) => {
-        console.log(error)
+        if (error.response.status === 401) {
+          setLoginError({ error: true, message: error.response.data?.detail })
+        } else {
+          console.log(error)
+        }
       })
   }
 
@@ -75,6 +84,9 @@ const Login = () => {
                     error={!!errors.password}
                     helperText={errors.password?.message}
                   />
+                  {loginError.error && <div style={{ boxSizing: 'border-box', textAlign: 'center', padding: '3px', backgroundColor: 'rgb(233,150,122)', color: 'black', border: '1px solid red', height: '30px' }}>
+                    {loginError.message}
+                  </div>}
                 </Grid>
                 <Grid item sm={4}>
                   <Button
