@@ -1,13 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  Alert,
   Button,
   Container,
   Grid,
   Link,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material'
+import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../utils/api/api'
@@ -22,8 +24,13 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setError
   } = useForm<loginFormData>({
     resolver: zodResolver(loginSchema),
+  })
+
+  const [loginError, setLoginError] = useState<{ error: boolean, message: string }>({
+    error: false, message: ""
   })
 
   const onSubmit: SubmitHandler<loginFormData> = async (data) => {
@@ -38,7 +45,15 @@ const Login = () => {
         navigate('/home')
       })
       .catch((error) => {
-        console.log(error)
+        if (error.response.status === 401) {
+          setError("username", {})
+          setError("password", {})
+          setLoginError({
+            error: true, message: error.response.data?.detail
+          });
+        } else {
+          console.log(error)
+        }
       })
   }
 
@@ -75,6 +90,9 @@ const Login = () => {
                     error={!!errors.password}
                     helperText={errors.password?.message}
                   />
+                  {loginError.error &&
+                    <Alert variant="standard" severity='error'>{loginError.message}</Alert>
+                  }
                 </Grid>
                 <Grid item sm={4}>
                   <Button
