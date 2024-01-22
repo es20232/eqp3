@@ -133,7 +133,7 @@ const Cadastro = () => {
           {registryError.error &&
             <Alert variant='standard' severity='error' style={{ alignItems: 'center' }}>
               {registryError.message.map((line, i) =>
-                <p key={i}>{line}</p>
+                <Typography key={i} marginTop={'5px'} marginBottom={'5px'}>{line}</Typography>
               )}
             </Alert>
           }
