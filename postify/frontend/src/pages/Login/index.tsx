@@ -6,9 +6,8 @@ import {
   Link,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material'
-import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../utils/api/api'
@@ -23,12 +22,9 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setError
   } = useForm<loginFormData>({
     resolver: zodResolver(loginSchema),
-  })
-
-  const [loginError, setLoginError] = useState<{ message: string, error: boolean }>({
-    message: "", error: false
   })
 
   const onSubmit: SubmitHandler<loginFormData> = async (data) => {
@@ -44,7 +40,14 @@ const Login = () => {
       })
       .catch((error) => {
         if (error.response.status === 401) {
-          setLoginError({ error: true, message: error.response.data?.detail })
+          setError("username", {
+            type: "manual",
+            message: error.response.data?.detail
+          })
+          setError("password", {
+            type: "manual",
+            message: error.response.data?.detail
+          })
         } else {
           console.log(error)
         }
@@ -84,9 +87,6 @@ const Login = () => {
                     error={!!errors.password}
                     helperText={errors.password?.message}
                   />
-                  {loginError.error && <div style={{ boxSizing: 'border-box', textAlign: 'center', padding: '3px', backgroundColor: 'rgb(233,150,122)', color: 'black', border: '1px solid red', height: '30px' }}>
-                    {loginError.message}
-                  </div>}
                 </Grid>
                 <Grid item sm={4}>
                   <Button
