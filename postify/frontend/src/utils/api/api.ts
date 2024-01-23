@@ -36,7 +36,7 @@ const ApiConfig = () => {
   useEffect(() => {
     const requestInterceptor = api.interceptors.request.use(
       async (config) => {
-        if (accessToken) {
+        if (accessToken != null) {
           config.headers.Authorization = `Bearer ${accessToken}`
         }
         return config
@@ -51,7 +51,11 @@ const ApiConfig = () => {
       async (error) => {
         const originalRequest = error.config
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (
+          error.response?.status === 401 &&
+          accessToken != null &&
+          !originalRequest._retry
+        ) {
           originalRequest._retry = true
 
           if (!isRefreshingToken) {
