@@ -34,7 +34,7 @@ const Cadastro = () => {
     await api
       .post('/api/v1/register/', data)
       .then(() => {
-        console.log("Cadastro efetuado com sucesso!")
+        alert("Cadastro efetuado com sucesso!")
         navigate('/')
       })
       .catch((error) => {
