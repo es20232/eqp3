@@ -40,8 +40,7 @@ class User(AbstractBaseUser):
                 and "profile_image" in self.request.FILES
             ):
                 self.profile_image.name = (
-                    f"{self.id}/profile_images/{self.profile_image.name.split('.')[0]}.%s"
-                    % self.profile_image.name.split(".")[1]
+                    f"{self.id}/profile_images/{self.profile_image.name}"
                 )
         return super(User, self).save(*args, **kwargs)
 

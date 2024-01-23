@@ -1,6 +1,6 @@
 import { Logout, Person } from '@mui/icons-material'
-import SettingsIcon from '@mui/icons-material/Settings';
 import SearchIcon from '@mui/icons-material/Search'
+import SettingsIcon from '@mui/icons-material/Settings'
 import {
   Avatar,
   Divider,
@@ -68,6 +68,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }))
 
 const MenuBar = () => {
+  const { logout } = useAuthStore()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const navigate = useNavigate()
   const open = Boolean(anchorEl)
@@ -192,9 +193,14 @@ const MenuBar = () => {
                   </ListItemIcon>
                   Meu perfil
                 </MenuItem>
-                <MenuItem onClick={() => {handleClose(); navigate('/profile/edit')}}>
+                <MenuItem
+                  onClick={() => {
+                    handleClose()
+                    navigate('/profile/edit')
+                  }}
+                >
                   <ListItemIcon>
-                    <SettingsIcon/>
+                    <SettingsIcon />
                   </ListItemIcon>
                   Configurações
                 </MenuItem>
@@ -202,6 +208,7 @@ const MenuBar = () => {
                 <MenuItem
                   onClick={() => {
                     handleClose()
+                    logout()
                     useAuthStore.persist.clearStorage()
                     navigate('/')
                   }}

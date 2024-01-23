@@ -35,6 +35,8 @@ class UserTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["name"] = user.name
         token["email"] = user.email
         token["username"] = user.username
+        token["phone_number"] = user.phone_number
+        token["profile_image"] = user.profile_image.url if user.profile_image else ""
 
         return token
 
@@ -58,6 +60,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ["password"]
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ["password", "is_active"]
 
 
 class ChangePasswordSerializer(serializers.Serializer):

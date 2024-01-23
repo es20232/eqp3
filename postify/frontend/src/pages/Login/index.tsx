@@ -7,50 +7,73 @@ import {
   Link,
   Paper,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../utils/api/api'
-import { getUsernameFromToken } from '../../utils/auth/getUsernameFromToken'
+import {
+  getEmailFromToken,
+  getIdFromToken,
+  getNameFromToken,
+  getPhoneNumberFromToken,
+  getProfileImageFromToken,
+  getUsernameFromToken,
+} from '../../utils/auth/getPropsFromToken'
 import { loginFormData, loginSchema } from '../../utils/schemas/loginSchema'
 import useAuthStore from '../../utils/stores/authStore'
+import useUserStore from '../../utils/stores/userStore'
 
 const Login = () => {
   const navigate = useNavigate()
   const { login } = useAuthStore()
+  const { setUserProps, setProfileImage } = useUserStore()
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setError
+    setError,
   } = useForm<loginFormData>({
     resolver: zodResolver(loginSchema),
   })
 
-  const [loginError, setLoginError] = useState<{ error: boolean, message: string }>({
-    error: false, message: ""
+  const [loginError, setLoginError] = useState<{
+    error: boolean
+    message: string
+  }>({
+    error: false,
+    message: '',
   })
+
+  const getProps = (accessToken: string) => {
+    const id = getIdFromToken(accessToken)
+    const name = getNameFromToken(accessToken)
+    const username = getUsernameFromToken(accessToken)
+    const email = getEmailFromToken(accessToken)
+    const phoneNumber = getPhoneNumberFromToken(accessToken)
+    const profileImage = getProfileImageFromToken(accessToken)
+
+    setUserProps(id, name, username, email, phoneNumber)
+    setProfileImage(profileImage)
+  }
 
   const onSubmit: SubmitHandler<loginFormData> = async (data) => {
     await api
       .post('api/v1/login', data)
       .then((response) => {
-        login(
-          response.data.access,
-          response.data.refresh,
-          getUsernameFromToken(response.data.access),
-        )
+        login(response.data.access, response.data.refresh)
+        getProps(response.data.access)
         navigate('/home')
       })
       .catch((error) => {
         if (error.response.status === 401) {
-          setError("username", {})
-          setError("password", {})
+          setError('username', {})
+          setError('password', {})
           setLoginError({
-            error: true, message: error.response.data?.detail
-          });
+            error: true,
+            message: error.response.data?.detail,
+          })
         } else {
           console.log(error)
         }
@@ -90,9 +113,11 @@ const Login = () => {
                     error={!!errors.password}
                     helperText={errors.password?.message}
                   />
-                  {loginError.error &&
-                    <Alert variant="standard" severity='error'>{loginError.message}</Alert>
-                  }
+                  {loginError.error && (
+                    <Alert variant="standard" severity="error">
+                      {loginError.message}
+                    </Alert>
+                  )}
                 </Grid>
                 <Grid item sm={4}>
                   <Button

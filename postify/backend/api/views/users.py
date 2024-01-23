@@ -15,6 +15,7 @@ from ..serializers.user_serializers import (
     UserRegisterSerializer,
     UserSerializer,
     UserTokenObtainPairSerializer,
+    UserUpdateSerializer,
 )
 from ..utils.email.sender import send_confirmation_email
 
@@ -102,7 +103,7 @@ class UserViewSet(ViewSet):
         if user.exists():
             user = user.get()
             user.request = request
-            serializer = UserSerializer(user, data=request.data)
+            serializer = UserUpdateSerializer(user, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -122,7 +123,7 @@ class UserViewSet(ViewSet):
         DELETE /api/v1/users/change-password/
         """
 
-        user = self.request.user
+        user = request.user
         serializer = ChangePasswordSerializer(data=request.data)
 
         if serializer.is_valid():

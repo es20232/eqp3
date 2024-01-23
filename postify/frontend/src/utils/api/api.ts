@@ -1,6 +1,5 @@
 import axios from 'axios'
-import { useEffect } from 'react'
-import { tokenIsValid } from '../auth/tokenIsValid'
+import { useEffect, useState } from 'react'
 import useAuthStore from '../stores/authStore'
 
 const api = axios.create({
@@ -9,44 +8,68 @@ const api = axios.create({
 
 const ApiConfig = () => {
   const { accessToken, refreshToken, logout, updateTokens } = useAuthStore()
+  const [isRefreshingToken, setIsRefreshingToken] = useState(false)
 
   const refreshAccessToken = async () => {
-    await api
-      .post('/api/v1/refresh', {
+    try {
+      setIsRefreshingToken(true)
+      const response = await api.post('/api/v1/refresh', {
         refresh: refreshToken,
       })
-      .then((response) => {
-        if (response.status === 200) {
-          updateTokens(response.data.access)
-        } else {
-          logout()
-        }
-      })
-      .catch((e) => {
-        console.log(e)
+
+      if (response.status === 200) {
+        updateTokens(response.data.access)
+        return true
+      } else {
         logout()
-      })
+        return false
+      }
+    } catch (error) {
+      console.log(error)
+      logout()
+      return false
+    } finally {
+      setIsRefreshingToken(false)
+    }
   }
 
   useEffect(() => {
-    if (accessToken) {
-      if (tokenIsValid(accessToken)) {
-        api.interceptors.request.use(
-          async (config) => {
-            if (accessToken) {
-              config.headers.Authorization = `Bearer ${accessToken}`
-            }
-            return config
-          },
-          (error) => {
-            return Promise.reject(error)
-          },
-        )
-      } else {
-        refreshAccessToken()
-      }
+    const requestInterceptor = api.interceptors.request.use(
+      async (config) => {
+        if (accessToken) {
+          config.headers.Authorization = `Bearer ${accessToken}`
+        }
+        return config
+      },
+      (error) => {
+        return Promise.reject(error)
+      },
+    )
+
+    const responseInterceptor = api.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true
+
+          if (!isRefreshingToken) {
+            await refreshAccessToken()
+          }
+
+          return api(originalRequest)
+        }
+
+        return Promise.reject(error)
+      },
+    )
+
+    return () => {
+      api.interceptors.request.eject(requestInterceptor)
+      api.interceptors.response.eject(responseInterceptor)
     }
-  }, [accessToken, logout, refreshToken, updateTokens])
+  }, [accessToken, isRefreshingToken, logout, refreshToken, updateTokens])
 
   return null
 }
