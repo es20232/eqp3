@@ -24,30 +24,29 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route
             index
             element={<LoginPage />}
-            errorElement={<ErrorNotFound />}
+          />
+          <Route
+            path={'*'}
+            element={<ErrorNotFound />}
           />
           <Route
             path={'/register'}
             element={<Register />}
-            errorElement={<ErrorNotFound />}
           />
 
           <Route path="/" element={<PrivateRoute />}>
             <Route
               path="/home"
               element={<Home />}
-              errorElement={<ErrorNotFound />}
             />
             <Route path="/profile" element={<Home />}>
               <Route
                 index
                 element={<Profile />}
-                errorElement={<ErrorNotFound />}
               />
               <Route
                 path="/profile/edit"
                 element={<EditProfile />}
-                errorElement={<ErrorNotFound />}
               />
             </Route>
           </Route>
