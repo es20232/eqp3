@@ -41,9 +41,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               errorElement={<ErrorNotFound />}
             />
             <Route 
-               path="/feed" 
+              path="/feed" 
               element={<Feed />} 
-               errorElement={<ErrorNotFound />} />
+              errorElement={<ErrorNotFound />} />
 
             <Route path="/profile" element={<Home />}>
               <Route
