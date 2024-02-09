@@ -6,7 +6,7 @@ import './index.css'
 
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import Home from '../src/App.tsx'
+import Home from './pages/Dashboard/index.tsx'
 import PrivateRoute from './components/PrivateRoute.tsx'
 import LoginPage from './pages/Login/index.tsx'
 import Register from './pages/Register/index.tsx'
