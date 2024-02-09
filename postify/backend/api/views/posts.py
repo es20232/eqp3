@@ -5,8 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from ..models import Comment, Image, Like, Post, User
+from ..models import Comment, Deslike, Image, Like, Post, User
 from ..serializers.comment_serializers import CommentSerializer
+from ..serializers.deslike_serializers import DeslikeSerializer
 from ..serializers.like_serializers import LikeSerializer
 from ..serializers.post_serializers import CreatePostSerializer, PostSerializer
 
@@ -222,6 +223,38 @@ class PostViewSet(ViewSet):
             }
 
             serializer = LikeSerializer(data=like_data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {"message": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    @transaction.atomic
+    @action(
+        detail=True,
+        methods=["POST"],
+        url_path="deslike",
+        url_name="deslike-post",
+    )
+    def deslike_post(self, request, pk=None):
+        post = self.get_a_post_active(pk=pk)
+        if post.exists():
+            user = request.user
+            deslike = Deslike.objects.filter(user=user, post=post.get())
+
+            if deslike.exists():
+                deslike.get().delete()
+                return Response(status=status.HTTP_200_OK)
+
+            deslike_data = {
+                "user": user.pk,
+                "post": post.get().pk,
+            }
+
+            serializer = DeslikeSerializer(data=deslike_data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
