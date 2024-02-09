@@ -6,7 +6,8 @@ import './index.css'
 
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import Home from './pages/Dashboard/index.tsx'
+import Home from '../src/App.tsx'
+import Feed from './pages/Feed/index.tsx'
 import PrivateRoute from './components/PrivateRoute.tsx'
 import LoginPage from './pages/Login/index.tsx'
 import Register from './pages/Register/index.tsx'
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             element={<Register />}
             errorElement={<ErrorNotFound />}
           />
+          
 
           <Route path="/" element={<PrivateRoute />}>
             <Route
@@ -38,6 +40,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               element={<Home />}
               errorElement={<ErrorNotFound />}
             />
+            <Route 
+               path="/feed" 
+              element={<Feed />} 
+               errorElement={<ErrorNotFound />} />
+
             <Route path="/profile" element={<Home />}>
               <Route
                 index
