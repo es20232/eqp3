@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from api.views import (
     CommentsFromPostViewSet,
     CommentViewSet,
@@ -25,6 +26,7 @@ from api.views import (
     ImageViewSet,
     PostsFromUserViewSet,
     PostViewSet,
+    SearchUserViewSet,
     UserRegisterViewSet,
     UserTokenObtainPairView,
     UserViewSet,
@@ -76,6 +78,11 @@ urlpatterns = [
         "api/v1/posts/<int:pk>/comments",
         CommentsFromPostViewSet.as_view({"get": "post_comments"}),
         name="post_comments",
+    ),
+    path(
+        "api/v1/users",
+        SearchUserViewSet.as_view({"get": "list"}),
+        name="search_users",
     ),
     path("api/v1/login", UserTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/v1/refresh", TokenRefreshView.as_view(), name="token_refresh"),
