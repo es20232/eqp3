@@ -46,6 +46,15 @@ class UserRegisterViewSet(ViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
 
+class SearchUserViewSet(ViewSet):
+    def list(self, request):
+        username = request.query_params.get("username")
+        users = User.objects.filter(username__icontains=username)
+        serializer = UserSerializer(users, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class ConfirmEmailView(ViewSet):
     @transaction.atomic()
     def retrieve(self, request, pk):
