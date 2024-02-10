@@ -1,16 +1,16 @@
 from rest_framework import serializers
 
-from ..models import Comment, Like, Post
+from ..models import Comment, Deslike, Like, Post
 from .comment_serializers import SimplifiedCommentSerializer
-from .image_serializers import ImageSerializer
+from .deslike_serializers import SimplifiedDeslikeSerializer
 from .like_serializers import SimplifiedLikeSerializer
 from .user_serializers import SimplifiedUserSerializer
 
 
 class PostSerializer(serializers.ModelSerializer):
     user = SimplifiedUserSerializer()
-    image = ImageSerializer()
     likes = serializers.SerializerMethodField()
+    deslikes = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
 
     class Meta:
@@ -20,6 +20,10 @@ class PostSerializer(serializers.ModelSerializer):
     def get_likes(self, obj):
         likes = Like.objects.filter(post=obj)
         return SimplifiedLikeSerializer(likes, many=True).data
+
+    def get_deslikes(self, obj):
+        deslikes = Deslike.objects.filter(post=obj)
+        return SimplifiedDeslikeSerializer(deslikes, many=True).data
 
     def get_comments(self, obj):
         comments = Comment.objects.filter(post=obj)
