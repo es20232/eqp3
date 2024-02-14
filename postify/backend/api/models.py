@@ -28,6 +28,8 @@ class User(AbstractBaseUser):
     profile_image = models.ImageField(null=True, validators=[validate_image_format])
     phone_number = models.CharField(max_length=255, null=False)
     is_active = models.BooleanField(default=True)
+    login_attempts = models.IntegerField(default=0)
+    last_login_attempt = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     excluded_at = models.DateTimeField(null=True, blank=True)
