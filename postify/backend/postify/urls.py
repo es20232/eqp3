@@ -20,10 +20,7 @@ from api.views import (
     CommentViewSet,
     ConfirmEmailView,
     CreateCommentViewSet,
-    CreateImageViewSet,
     CreatePostViewSet,
-    ImagesFromUserViewSet,
-    ImageViewSet,
     PostsFromUserViewSet,
     PostViewSet,
     SearchUserViewSet,
@@ -43,22 +40,11 @@ router.register(r"users", UserViewSet, basename="user")
 router.register(r"register", UserRegisterViewSet, basename="register")
 router.register(r"register/confirm-email", ConfirmEmailView, basename="confirm-email")
 router.register(r"posts", PostViewSet, basename="post")
-router.register(r"images", ImageViewSet, basename="image")
 router.register(r"comments", CommentViewSet, basename="comment")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include((router.urls, "api"), namespace="postify")),
-    path(
-        "api/v1/users/<int:pk>/images/upload",
-        CreateImageViewSet.as_view({"post": "image_upload"}),
-        name="user_image_upload",
-    ),
-    path(
-        "api/v1/users/<int:pk>/images",
-        ImagesFromUserViewSet.as_view({"get": "images_from_user"}),
-        name="user_images",
-    ),
     path(
         "api/v1/users/<int:pk>/posts/create",
         CreatePostViewSet.as_view({"post": "create_post"}),

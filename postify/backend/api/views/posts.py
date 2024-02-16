@@ -1,11 +1,12 @@
 from django.db import transaction
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from ..models import Comment, Deslike, Image, Like, Post, User
+from ..models import Comment, Deslike, Like, Post, User
 from ..serializers.comment_serializers import CommentSerializer
 from ..serializers.deslike_serializers import DeslikeSerializer
 from ..serializers.like_serializers import LikeSerializer
@@ -14,6 +15,7 @@ from ..serializers.post_serializers import CreatePostSerializer, PostSerializer
 
 class CreatePostViewSet(ViewSet):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     @transaction.atomic
     @action(
@@ -28,20 +30,29 @@ class CreatePostViewSet(ViewSet):
         POST /api/v1/users/pk/posts
         """
         user = User.objects.filter(pk=pk, is_active=True)
-        image = Image.objects.filter(pk=request.data["image"])
-        if user.exists() and image.exists():
+        image_data = request.data.get("image", None)
+
+        if image_data is None:
+            return Response(
+                {"message": "A imagem é obrigatória."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if user.exists():
             post_data = {
-                "image": image.get().pk,
+                "image": image_data,
                 "user": user.get().pk,
                 "caption": request.data["caption"],
             }
+
             serializer = CreatePostSerializer(data=post_data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(
-            {"message": "Usuário ou Imagem não encontrados."},
+            {"message": "Usuário não encontrado."},
             status=status.HTTP_404_NOT_FOUND,
         )
 
@@ -116,12 +127,13 @@ class CommentViewSet(ViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if request.user == comment.user or request.user == comment.post.user:
+        if request.user == comment.post.user:
             comment.get().delete()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(
-                {"message": "Permissão negada."}, status=status.HTTP_403_FORBIDDEN
+                {"message": "Apenas o dono do post pode apagar comentários."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
 
