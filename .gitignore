@@ -289,7 +289,5 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-postify/backend/media/2/profile_images/R.png
-postify/backend/media/3/profile_images/R.png
-postify/backend/media/4/profile_images/OIP_tR0Q5eW.jpg
-postify/backend/media/4/profile_images/OIP.jpg
+
+postify/backend/media/*
