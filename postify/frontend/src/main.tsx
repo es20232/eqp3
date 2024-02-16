@@ -57,6 +57,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 path="/profile/edit"
                 element={<EditProfile />}
               />
+              <Route path=":username" element={<Profile />} />
             </Route>
             <Route path="/search" element={<Home />}>
             <Route
