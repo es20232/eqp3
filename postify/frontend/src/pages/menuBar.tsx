@@ -81,8 +81,7 @@ const MenuBar = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    console.log(searchValue)
-    navigate('search')
+    navigate('/search', { state: { query: searchValue } })
   }
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
