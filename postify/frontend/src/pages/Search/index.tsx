@@ -5,13 +5,12 @@ import {
   Typography,
   Card,
   CardContent,
-  CardMedia,
   CardActionArea,
   Avatar,
   Box,
   CircularProgress,
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../utils/api/api";
 
 interface User {
@@ -23,7 +22,7 @@ interface User {
   profile_image: string | null;
 }
 
-const URL = "http://localhost:8000"; // Substitua pela URL base de produção quando necessário
+const URL = "http://localhost:8000";
 
 const Search = () => {
   const location = useLocation();
@@ -31,6 +30,7 @@ const Search = () => {
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -38,7 +38,7 @@ const Search = () => {
       api
         .get(`/api/v1/users?username=${encodeURIComponent(username)}`)
         .then((response) => {
-          setUsers(response.data); // Assumindo que a resposta da API é o array de usuários
+          setUsers(response.data);
           setLoading(false);
         })
         .catch((error) => {
@@ -59,11 +59,13 @@ const Search = () => {
       <Container sx={{ flexGrow: 1, marginY: 4 }}>
         <Grid container spacing={4} sx={{ paddingBottom: "20px" }}>
           <Grid item xs={12}>
+            <Typography variant="h2">Pesquisa por usuários</Typography>
             <Box sx={{ display: "flex" }}>
-              <Typography variant="h4" gutterBottom>
+              <Typography variant="h5" gutterBottom>
                 Resultados para: "{username}"
               </Typography>
             </Box>
+            <Typography>Quantidade de resultados: {users.length}</Typography>
           </Grid>
           {loading ? (
             <Box
@@ -79,9 +81,9 @@ const Search = () => {
           ) : users.length > 0 ? (
             users.map((usuario) => (
               <Grid item xs={12} sm={6} md={4} key={usuario.id}>
-                <Card>
-                  <CardActionArea>
-                    <CardContent>
+                <Card elevation={5} >
+                  <CardActionArea onClick={() => navigate(`/profile/${usuario.username}`)}>
+                    <CardContent sx={{ display: "flex" }}>
                       <Avatar
                         src={URL + usuario.profile_image || undefined}
                         alt={usuario.name}
@@ -89,12 +91,14 @@ const Search = () => {
                       >
                         {!usuario.profile_image && getInitials(usuario.name)}
                       </Avatar>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {usuario.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        @{usuario.username}
-                      </Typography>
+                      <Box sx={{ marginLeft: "15px" }}>
+                        <Typography gutterBottom variant="h5" component="div">
+                          {usuario.name.split(" ").slice(0, 2).join(" ")}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          @{usuario.username}
+                        </Typography>
+                      </Box>
                     </CardContent>
                   </CardActionArea>
                 </Card>
@@ -102,9 +106,11 @@ const Search = () => {
             ))
           ) : (
             <Grid item xs={12}>
-              <Typography variant="h6" textAlign="center">
-                Nenhum usuário encontrado.
-              </Typography>
+              <Box sx={{marginTop:"150px"}}>
+                <Typography variant="h6" textAlign="center">
+                  Nenhum usuário encontrado.
+                </Typography>
+              </Box>
             </Grid>
           )}
         </Grid>
