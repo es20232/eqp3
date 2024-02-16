@@ -18,6 +18,7 @@ import { registerFormData, registerSchema } from '../../utils/schemas/registerSc
 const Cadastro = () => {
   const navigate = useNavigate()
   const [cadastrado, setCadastrado] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const {
     register,
@@ -36,6 +37,7 @@ const Cadastro = () => {
     await api
       .post('/api/v1/register/', data)
       .then(() => {
+        setButtonDisabled(true);
         setCadastrado(true);
         setTimeout(() => {
           navigate('/')
@@ -163,12 +165,13 @@ const Cadastro = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleCancele}
+                disabled={buttonDisabled}
               >
                 Cancelar
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" color="primary" type="submit">
+              <Button variant="contained" color="primary" type="submit" disabled={buttonDisabled}>
                 Confirmar
               </Button>
             </Grid>
