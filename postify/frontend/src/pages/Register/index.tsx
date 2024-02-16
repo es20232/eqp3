@@ -39,7 +39,7 @@ const Cadastro = () => {
         setCadastrado(true);
         setTimeout(() => {
           navigate('/')
-        }, 4000)
+        }, 6000)
       })
       .catch((error) => {
         const data = error.response.data;
@@ -69,8 +69,8 @@ const Cadastro = () => {
   const areaInformativa = () => {
     return (
       <AlertInformativo
-        message='Cadastro realizado com sucesso'
-        severityMessage='success'
+        message='Cadastro em processo de conclusão. Para finalizar, confirme o e-mail que lhe foi enviado.'
+        severityMessage='info'
       />
     );
   }
