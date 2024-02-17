@@ -7,10 +7,10 @@ export const alterarSenhaSchema = z
       .min(1, { message: 'A senha antiga não pode estar vazia.' }),
     senha_nova: z.string().min(6, {
       message: 'Senhas tem que possuir no minimo 6 caracteres.',
-    }),
+    }).max(30, { message: 'Senhas tem que possuir no máximo 30 caracteres.' }),
     senha_nova_confirmar: z.string().min(6, {
       message: 'Senhas tem que possuir no minimo 6 caracteres.',
-    }),
+    }).max(30, { message: 'Senhas tem que possuir no máximo 30 caracteres.' }),
   })
   .refine((data) => data.senha_nova === data.senha_nova_confirmar, {
     message: 'As senhas não coincidem.',

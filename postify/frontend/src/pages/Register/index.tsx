@@ -18,6 +18,7 @@ import { registerFormData, registerSchema } from '../../utils/schemas/registerSc
 const Cadastro = () => {
   const navigate = useNavigate()
   const [cadastrado, setCadastrado] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const {
     register,
@@ -36,10 +37,11 @@ const Cadastro = () => {
     await api
       .post('/api/v1/register/', data)
       .then(() => {
+        setButtonDisabled(true);
         setCadastrado(true);
         setTimeout(() => {
           navigate('/')
-        }, 4000)
+        }, 6000)
       })
       .catch((error) => {
         const data = error.response.data;
@@ -69,8 +71,8 @@ const Cadastro = () => {
   const areaInformativa = () => {
     return (
       <AlertInformativo
-        message='Cadastro realizado com sucesso'
-        severityMessage='success'
+        message='Cadastro em processo de conclusão. Para finalizar, confirme o e-mail que lhe foi enviado.'
+        severityMessage='info'
       />
     );
   }
@@ -163,12 +165,13 @@ const Cadastro = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleCancele}
+                disabled={buttonDisabled}
               >
                 Cancelar
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" color="primary" type="submit">
+              <Button variant="contained" color="primary" type="submit" disabled={buttonDisabled}>
                 Confirmar
               </Button>
             </Grid>
