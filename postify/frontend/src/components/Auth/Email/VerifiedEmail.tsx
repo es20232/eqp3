@@ -1,20 +1,18 @@
-import { Alert, Button, Grid, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import MyContainer from '../../MyContainer';
+import { Alert, Button, Grid, Typography } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+import MyContainer from '../../MyContainer'
 
-const verifiedEmail = () => {
+const VerifiedEmail = () => {
     const navigate = useNavigate()
 
     return (
         <MyContainer>
-            <Typography textAlign={'center'} variant='h6'>Verificação de Email</Typography>
+            <Typography textAlign={'center'} variant="h6">
+                Verificação de Email
+            </Typography>
             <Grid container justifyContent={'center'}>
                 <Grid item xs={12}>
-                    <Alert
-                        severity='success'
-                    >
-                        Email verificado com sucesso!
-                    </Alert>
+                    <Alert severity="success">Email verificado com sucesso!</Alert>
                 </Grid>
                 <Grid item xs={3} marginTop={'12px'}>
                     <Button
@@ -34,7 +32,7 @@ const verifiedEmail = () => {
                 </Grid>
             </Grid>
         </MyContainer>
-    );
+    )
 }
 
-export default verifiedEmail;
+export default VerifiedEmail

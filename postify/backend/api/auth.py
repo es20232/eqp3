@@ -11,13 +11,12 @@ class UserBackend(ModelBackend):
     def authenticate(self, request, username, password):
         try:
             user = User.objects.get(username=username)
-            print(user)
 
             if user.login_attempts >= 3 and user.last_login_attempt:
                 time_since_last_attempt = timezone.now() - user.last_login_attempt
                 if time_since_last_attempt < timedelta(minutes=5):
                     raise PermissionDenied(
-                        "Conta bloqueada. Tente novamente mais tarde."
+                        "Conta bloqueada. Tente novamente após 5 minutos."
                     )
 
             if user.check_password(password):

@@ -150,7 +150,7 @@ const Login = () => {
               component="button"
               variant="body2"
               onClick={() => {
-                return navigate('/passwordRecovery')
+                return navigate('/password-recovery')
               }}
             >
               Esqueci a senha

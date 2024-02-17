@@ -1,8 +1,12 @@
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils import timezone
 from PIL import Image as PILImage
 
@@ -27,9 +31,11 @@ class User(AbstractBaseUser):
     biography = models.CharField(max_length=255, null=True, blank=True)
     profile_image = models.ImageField(null=True, validators=[validate_image_format])
     phone_number = models.CharField(max_length=255, null=False)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     login_attempts = models.IntegerField(default=0)
     last_login_attempt = models.DateTimeField(null=True, blank=True)
+    password_reset_token = models.CharField(max_length=255, null=True, blank=True)
+    reset_token_expires_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     excluded_at = models.DateTimeField(null=True, blank=True)
@@ -50,6 +56,31 @@ class User(AbstractBaseUser):
         self.excluded_at = timezone.now()
         self.is_active = False
         self.save(update_fields=["excluded_at", "is_active"])
+
+    def generate_password_reset_token(self):
+        token = default_token_generator.make_token(self)
+        self.password_reset_token = token
+        self.reset_token_expires_at = timezone.now() + timezone.timedelta(hours=1)
+        self.save()
+        return token
+
+    def send_password_reset_email(self):
+        token = self.generate_password_reset_token()
+        reset_url = f"http://localhost:5173/password-recovery/change/{token}"
+
+        subject = "Redefinição de Senha - Postify"
+        message = render_to_string(
+            "email/password_reset.txt",
+            {"reset_url": reset_url, "nome_do_usuario": self.name},
+        )
+        from_email = settings.EMAIL_HOST_USER
+        send_mail(subject, message, from_email, [self.email])
+
+    def reset_password(self, new_password):
+        self.set_password(new_password)
+        self.password_reset_token = None
+        self.reset_token_expires_at = None
+        self.save()
 
 
 class EmailConfirmation(models.Model):

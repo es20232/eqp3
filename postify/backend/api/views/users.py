@@ -1,6 +1,6 @@
 from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
@@ -41,8 +41,7 @@ class UserRegisterViewSet(ViewSet):
                 data=user_serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # TODO: Tirar comentário para validar email
-        # send_confirmation_email(user=user)
+        send_confirmation_email(user=user)
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -65,7 +64,8 @@ class ConfirmEmailView(ViewSet):
             confirmation.user.is_active = True
             confirmation.user.save()
             confirmation.save()
-            return Response(status=status.HTTP_200_OK)
+            return redirect("http://localhost:5173/verified-email")
+            # return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
