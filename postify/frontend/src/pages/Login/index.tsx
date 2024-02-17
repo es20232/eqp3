@@ -68,6 +68,7 @@ const Login = () => {
       })
       .catch((error) => {
         if (error.response.status === 401) {
+          console.log(error.response)
           setError('username', {})
           setError('password', {})
           setLoginError({

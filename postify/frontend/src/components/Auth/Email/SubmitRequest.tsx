@@ -38,7 +38,6 @@ const SubmitRequest = () => {
   }
 
   const onSubmit: SubmitHandler<submitRequestFormData> = async (data) => {
-    console.log(data)
     await api
       .post('/api/v1/password-reset', {
         email: data.email,
