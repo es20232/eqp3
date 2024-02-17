@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { api } from "../../utils/api/api";
 import {
   alterarSenhaFormData,
@@ -47,7 +47,7 @@ const VisuallyHiddenInput = styled("input")({
 interface UserProfile {
   name: string;
   username: string;
-  profileImage: string | null; // Permitir null para imagens de perfil ausentes
+  profileImage: string | null;
 }
 
 const URL = "http://localhost:8000";
@@ -64,7 +64,6 @@ const Profile = () => {
       api
         .get(`/api/v1/users?username=${encodeURIComponent(paramsUsername)}`)
         .then((response) => {
-          console.log("Resposta da API:", response.data);
           const userData =
             response.data.length > 0
               ? {
@@ -133,7 +132,6 @@ const Profile = () => {
   }, [user]);
 
   const postsCount = posts.length;
-  const navigate = useNavigate();
 
   return (
     <>
