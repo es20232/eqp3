@@ -85,7 +85,11 @@ const MenuBar = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (!searchValue.trim()) {
+      return; 
+    }
     navigate('/search', { state: { query: searchValue } })
+    setSearchValue("")
   }
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -130,7 +134,7 @@ const MenuBar = () => {
                   </SearchIconWrapper>
                   <StyledInputBase
                     placeholder="Pesquisar"
-                    inputProps={{ 'aria-label': 'search' }}
+                    inputProps={{ 'aria-label': 'search', maxLength: 30 }}
                     value={searchValue}
                     onChange={handleInputChange}
                   />
