@@ -24,6 +24,7 @@ import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { mainMenuItems } from '../components/mainMenuItems'
 import useAuthStore from '../utils/stores/authStore'
+import useUserStore from '../utils/stores/userStore'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -67,8 +68,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }))
 
+const URL = "http://localhost:8000";
+
 const MenuBar = () => {
   const { logout } = useAuthStore()
+  const { profileImage } = useUserStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const navigate = useNavigate()
   const open = Boolean(anchorEl)
@@ -144,7 +148,7 @@ const MenuBar = () => {
                 onClick={handleMenu}
                 color="inherit"
               >
-                <Avatar />
+                <Avatar src={profileImage ? URL + profileImage : undefined}/>
               </IconButton>
               <Menu
                 anchorEl={anchorEl}
