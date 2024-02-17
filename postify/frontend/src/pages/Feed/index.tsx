@@ -38,6 +38,7 @@ const Feed = () => {
   const handleLike = async (idPost: number) => {
     await api.post(`/api/v1/posts/${idPost}/like/`).then((response) => {
       console.log(response)
+      window.location.reload()
     })
   }
 
@@ -49,14 +50,28 @@ const Feed = () => {
   }
 
   useEffect(() => {
-    if (!posts.length) {
-      handlePost()
+    const fetchPosts = async () => {
+      try {
+        const response = await api.get(`/api/v1/posts/`)
+        setPosts(response.data)
+        console.log(response.data)
+      } catch (error) {
+        console.error('Erro ao buscar posts:', error)
+      }
     }
-  }, [posts])
+
+    if (posts.length === 0) {
+      // Verifica se já existem posts carregados
+      fetchPosts() // Se não houver posts, busca os posts
+    }
+
+    // Não há necessidade de atualizar os posts depois que eles são carregados
+  }, [posts]) // Dependência vazia significa que esse efeito só é executado uma vez, quando o componente é montado
 
   const handleDislike = async (idPost: number) => {
     await api.post(`/api/v1/posts/${idPost}/deslike/`).then((response) => {
       console.log(response)
+      window.location.reload()
     })
   }
 
@@ -136,13 +151,17 @@ const Feed = () => {
                 <Typography id="modal-modal-title" variant="h6" component="h2">
                   Comentários
                 </Typography>
-                {post.comments.map((comment) => {
-                  return (
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                      {comment.comment}
-                    </Typography>
-                  )
-                })}
+                {post.comments.map((comment) => (
+                  <Box key={comment.id} sx={{ mt: 2 }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 'bold', marginLeft: '-8px' }}
+                    >
+                      {comment.user.username}
+                    </Typography>{' '}
+                    <Typography>{comment.comment}</Typography>
+                  </Box>
+                ))}
               </Box>
             </Modal>
           </Grid>
