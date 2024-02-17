@@ -74,6 +74,11 @@ const Login = () => {
             error: true,
             message: error.response.data?.detail,
           })
+        } else if (error.response.status === 403) {
+          setLoginError({
+            error: true,
+            message: "Houve mais de 3 tentativas ao fazer login. A conta está suspensa, tente novamente após 24 horas.",
+          })
         } else {
           console.log(error)
         }
