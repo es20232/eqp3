@@ -52,7 +52,7 @@ const SubmitRequest = () => {
           navigate('/')
         }, 3000)
       })
-      .catch((error) => {
+      .catch(() => {
         setStatus({
           ...status,
           erro: true, message: 'e-mail não enviado. Por favor, insira um email válido ou tente novamente mais tarde.'

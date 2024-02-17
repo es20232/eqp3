@@ -55,7 +55,7 @@ const PasswordRecovery = () => {
           navigate('/')
         }, 3000)
       })
-      .catch((error) => {
+      .catch(() => {
         setStatus({
           ...status,
           erro: true,
