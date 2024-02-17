@@ -146,7 +146,13 @@ const Login = () => {
             >
               Cadastrar
             </Link>
-            <Link component="button" variant="body2">
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => {
+                return navigate('/passwordRecovery')
+              }}
+            >
               Esqueci a senha
             </Link>
           </Grid>

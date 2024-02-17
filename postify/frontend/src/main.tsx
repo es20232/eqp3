@@ -7,8 +7,9 @@ import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Home from "../src/App.tsx";
-import Feed from "./pages/Feed/index.tsx";
+import { PasswordRecovery, SubmitRequest } from "./components/Auth/index.ts";
 import PrivateRoute from "./components/PrivateRoute.tsx";
+import Feed from "./pages/Feed/index.tsx";
 import LoginPage from "./pages/Login/index.tsx";
 import Register from "./pages/Register/index.tsx";
 import { EditProfile, Profile } from "./pages/UserProfile/index.tsx";
@@ -33,6 +34,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route
             path={"/register"}
             element={<Register />}
+          />
+          <Route
+            path={"/passwordRecovery"}
+            element={<SubmitRequest type={"PASSWORDRECOVERY"} />}
+          />
+          <Route
+            path={"/passwordRecovery/change"}
+            element={<PasswordRecovery />}
           />
 
           <Route path="/" element={<PrivateRoute />}>

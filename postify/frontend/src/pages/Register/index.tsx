@@ -11,11 +11,14 @@ import {
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import AlertInformativo from '../../components/AlertInformativo'
 import { api } from '../../utils/api/api'
 import { registerFormData, registerSchema } from '../../utils/schemas/registerSchema'
 
 const Cadastro = () => {
   const navigate = useNavigate()
+  const [cadastrado, setCadastrado] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const {
     register,
@@ -34,8 +37,11 @@ const Cadastro = () => {
     await api
       .post('/api/v1/register/', data)
       .then(() => {
-        alert("Cadastro efetuado com sucesso!")
-        navigate('/')
+        setButtonDisabled(true);
+        setCadastrado(true);
+        setTimeout(() => {
+          navigate('/')
+        }, 6000)
       })
       .catch((error) => {
         const data = error.response.data;
@@ -62,8 +68,18 @@ const Cadastro = () => {
     return navigate('/')
   }
 
+  const areaInformativa = () => {
+    return (
+      <AlertInformativo
+        message='Cadastro em processo de conclusão. Para finalizar, confirme o e-mail que lhe foi enviado.'
+        severityMessage='info'
+      />
+    );
+  }
+
   return (
     <Container maxWidth={'sm'}>
+      {cadastrado && areaInformativa()}
       <Paper elevation={4} style={{ padding: '20px', marginTop: '20px' }}>
         <Typography align="center" variant="h6">
           Cadastro de Novo usuário
@@ -149,12 +165,13 @@ const Cadastro = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleCancele}
+                disabled={buttonDisabled}
               >
                 Cancelar
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" color="primary" type="submit">
+              <Button variant="contained" color="primary" type="submit" disabled={buttonDisabled}>
                 Confirmar
               </Button>
             </Grid>
