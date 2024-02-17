@@ -19,6 +19,7 @@ import Register from './pages/Register/index.tsx'
 import { EditProfile, Profile } from './pages/UserProfile/index.tsx'
 import ErrorNotFound from './pages/errors/notFound.tsx'
 import { ApiConfig } from './utils/api/api.ts'
+import Search from "./pages/Search/index.tsx";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -50,8 +51,22 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               />
             </Route>
             <Route path="/profile" element={<Home />}>
-              <Route index element={<Profile />} />
-              <Route path="/profile/edit" element={<EditProfile />} />
+              <Route
+                index
+                element={<Profile />}
+              />
+              <Route
+                path="/profile/edit"
+                element={<EditProfile />}
+              />
+              <Route path=":username" element={<Profile />} />
+            </Route>
+            <Route path="/search" element={<Home />}>
+            <Route
+                index
+                element={<Search/>}
+                errorElement={<ErrorNotFound/>}
+              />
             </Route>
           </Route>
         </Routes>

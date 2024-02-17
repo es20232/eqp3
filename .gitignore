@@ -290,3 +290,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 postify/backend/media/
+
+postify/backend/media/*
