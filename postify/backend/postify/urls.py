@@ -21,6 +21,8 @@ from api.views import (
     ConfirmEmailView,
     CreateCommentViewSet,
     CreatePostViewSet,
+    PasswordResetRequestView,
+    PasswordResetView,
     PostsFromUserViewSet,
     PostViewSet,
     SearchUserViewSet,
@@ -45,6 +47,16 @@ router.register(r"comments", CommentViewSet, basename="comment")
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include((router.urls, "api"), namespace="postify")),
+    path(
+        "api/v1/password-reset",
+        PasswordResetRequestView.as_view(),
+        name="password-reset-request",
+    ),
+    path(
+        "api/v1/password-reset/<str:password_reset_token>/",
+        PasswordResetView.as_view(),
+        name="password-reset",
+    ),
     path(
         "api/v1/users/<int:pk>/posts/create",
         CreatePostViewSet.as_view({"post": "create_post"}),

@@ -68,11 +68,17 @@ const Login = () => {
       })
       .catch((error) => {
         if (error.response.status === 401) {
+          console.log(error.response)
           setError('username', {})
           setError('password', {})
           setLoginError({
             error: true,
             message: error.response.data?.detail,
+          })
+        } else if (error.response.status === 403) {
+          setLoginError({
+            error: true,
+            message: "Houve mais de 3 tentativas ao fazer login. A conta está suspensa, tente novamente após 24 horas.",
           })
         } else {
           console.log(error)
@@ -146,7 +152,13 @@ const Login = () => {
             >
               Cadastrar
             </Link>
-            <Link component="button" variant="body2">
+            <Link
+              component="button"
+              variant="body2"
+              onClick={() => {
+                return navigate('/password-recovery')
+              }}
+            >
               Esqueci a senha
             </Link>
           </Grid>

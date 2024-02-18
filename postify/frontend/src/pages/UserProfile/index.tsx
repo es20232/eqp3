@@ -1,5 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import SettingsIcon from '@mui/icons-material/Settings'
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
   Avatar,
@@ -8,6 +7,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  CircularProgress,
   Container,
   Fade,
   Grid,
@@ -17,187 +17,247 @@ import {
   Tooltip,
   Typography,
   styled,
-} from '@mui/material'
-import { ChangeEvent, useRef, useState } from 'react'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import { api } from '../../utils/api/api'
+} from "@mui/material";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
+import { api } from "../../utils/api/api";
 import {
   alterarSenhaFormData,
   alterarSenhaSchema,
-} from '../../utils/schemas/alterarSenhaSchema'
+} from "../../utils/schemas/alterarSenhaSchema";
 import {
   updateUsuarioFormData,
   updateUsuarioSchema,
-} from '../../utils/schemas/updateUsuarioSchema'
-import useUserStore from '../../utils/stores/userStore'
+} from "../../utils/schemas/updateUsuarioSchema";
+import useUserStore from "../../utils/stores/userStore";
 
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
   height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
+  overflow: "hidden",
+  position: "absolute",
   bottom: 0,
   left: 0,
-  whiteSpace: 'nowrap',
+  whiteSpace: "nowrap",
   width: 1,
-})
+});
 
-const URL = 'http://localhost:8000'
+interface UserProfile {
+  name: string;
+  username: string;
+  profileImage: string | null;
+}
+
+const URL = "http://localhost:8000";
 
 const Profile = () => {
-  const { name, username, profileImage } = useUserStore()
+  const { username: paramsUsername } = useParams();
+  const { name, username, profileImage } = useUserStore();
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    if (paramsUsername) {
+      api
+        .get(`/api/v1/users?username=${encodeURIComponent(paramsUsername)}`)
+        .then((response) => {
+          const userData =
+            response.data.length > 0
+              ? {
+                  ...response.data[0],
+                  profileImage: response.data[0].profile_image,
+                }
+              : null;
+          setUser(userData);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar usuário:", error);
+          setLoading(false);
+        });
+    } else {
+      setUser({ name, username, profileImage });
+      setLoading(false);
+    }
+  }, [paramsUsername, name, username, profileImage]);
 
   const posts = [
     {
       id: 1,
-      imageUrl: 'https://source.unsplash.com/random?wallpapers',
-      description: 'Bela foto',
+      imageUrl: "https://source.unsplash.com/random?wallpapers",
+      description: "Bela foto",
     },
     {
       id: 2,
-      imageUrl: 'https://source.unsplash.com/random?wallpapers',
-      description: 'Bela foto',
+      imageUrl: "https://source.unsplash.com/random?wallpapers",
+      description: "Bela foto",
     },
     {
       id: 3,
-      imageUrl: 'https://source.unsplash.com/random?wallpapers',
-      description: 'Bela foto',
+      imageUrl: "https://source.unsplash.com/random?wallpapers",
+      description: "Bela foto",
     },
     {
       id: 4,
-      imageUrl: 'https://source.unsplash.com/random?wallpapers',
-      description: 'Bela foto',
+      imageUrl: "https://source.unsplash.com/random?wallpapers",
+      description: "Bela foto",
     },
     {
       id: 5,
-      imageUrl: 'https://source.unsplash.com/random?wallpapers',
-      description: 'Bela foto',
+      imageUrl: "https://source.unsplash.com/random?wallpapers",
+      description: "Bela foto",
     },
     {
       id: 6,
-      imageUrl: 'https://source.unsplash.com/random?wallpapers',
-      description: 'Bela foto',
+      imageUrl: "https://source.unsplash.com/random?wallpapers",
+      description: "Bela foto",
     },
     {
       id: 7,
-      imageUrl: 'https://source.unsplash.com/random?wallpapers',
-      description: 'Bela foto',
+      imageUrl: "https://source.unsplash.com/random?wallpapers",
+      description: "Bela foto",
     },
     {
       id: 8,
-      imageUrl: 'https://source.unsplash.com/random?wallpapers',
-      description: 'Bela foto',
+      imageUrl: "https://source.unsplash.com/random?wallpapers",
+      description: "Bela foto",
     },
-  ]
+  ];
 
-  const postsCount = posts.length
-  const navigate = useNavigate()
+  useEffect(() => {
+    console.log("Estado do usuário atualizado:", user);
+  }, [user]);
+
+  const postsCount = posts.length;
 
   return (
     <>
       <div id="profile">
         <Container
-          sx={{ flexGrow: 1, margin: 2, width: '100%', paddingBottom: '20px' }}
+          sx={{ flexGrow: 1, margin: 2, width: "100%", paddingBottom: "20px" }}
         >
-          <Grid container spacing={0} sx={{ padding: '50px' }}>
-            <Grid item xs={12} md={3}>
-              <Tooltip title="Foto de perfil">
-                <Avatar
-                  sx={{ width: 150, height: 150 }}
-                  src={profileImage !== '' ? URL + profileImage : profileImage}
-                />
-              </Tooltip>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h3" fontSize={'30px'}>
-                {name}
-              </Typography>
-              <Typography variant="subtitle1">@{username}</Typography>
-              <Box sx={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                <Typography variant="body1">
-                  <strong>Posts:</strong> {postsCount}
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={3}
-              sx={{ display: 'flex', justifyContent: 'right' }}
+          {loading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+              }}
             >
-              <Button
-                sx={{ height: '50px' }}
-                color="primary"
-                variant="contained"
-                startIcon={<SettingsIcon />}
-                onClick={() => navigate('/profile/edit')}
-              >
-                Configurações
-              </Button>
-            </Grid>
-          </Grid>
-
-          <Container sx={{ paddingBottom: '20px' }}>
-            <Grid container spacing={2}>
-              {posts.length === 0 ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    width: '100%',
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    sx={{ marginTop: 2, textAlign: 'center' }}
-                  >
-                    Não há posts para exibir.
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              <Grid container spacing={0} sx={{ padding: "50px" }}>
+                <Grid item xs={12} md={3}>
+                  <Tooltip title="Foto de perfil">
+                    <Avatar
+                      sx={{ width: 150, height: 150 }}
+                      src={
+                        user && user.profileImage
+                          ? URL + user.profileImage
+                          : undefined
+                      }
+                      alt={user ? user.name : "Foto de perfil"}
+                    />
+                  </Tooltip>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="h3" fontSize={"30px"}>
+                    {user ? user.name : "Nome do Usuário"}
                   </Typography>
-                </Box>
-              ) : (
-                posts.map((post) => (
-                  <Grid
-                    item
-                    key={post.id}
-                    xs={12}
-                    sm={6}
-                    md={4}
-                    sx={{ height: '100%' }}
-                  >
-                    <Card
-                      elevation={5}
+                  <Typography variant="subtitle1">
+                    @{user ? user.username : "username"}
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 10, marginTop: 4 }}>
+                    <Typography variant="body1">
+                      <strong>Posts:</strong> {postsCount}
+                    </Typography>
+                  </Box>
+                </Grid>
+                {/* <Grid
+                          item
+                          xs={12}
+                          md={3}
+                          sx={{ display: "flex", justifyContent: "right" }}
+                        >
+                          <Button
+                            sx={{ height: "50px" }}
+                            color="primary"
+                            variant="contained"
+                            startIcon={<SettingsIcon />}
+                            onClick={() => navigate("/profile/edit")}
+                          >
+                            Configurações
+                          </Button>
+                        </Grid> */}
+              </Grid>
+
+              <Container sx={{ paddingBottom: "20px" }}>
+                <Grid container spacing={2}>
+                  {posts.length === 0 ? (
+                    <Box
                       sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
+                        display: "flex",
+                        justifyContent: "center",
+                        width: "100%",
                       }}
                     >
-                      <CardMedia
-                        component="div"
-                        sx={{
-                          // 16:9
-                          pt: '56.25%',
-                          height: '100%',
-                        }}
-                        image={post.imageUrl}
-                      />
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          {post.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))
-              )}
-            </Grid>
-          </Container>
+                      <Typography
+                        variant="body1"
+                        sx={{ marginTop: 2, textAlign: "center" }}
+                      >
+                        Não há posts para exibir.
+                      </Typography>
+                    </Box>
+                  ) : (
+                    posts.map((post) => (
+                      <Grid
+                        item
+                        key={post.id}
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        sx={{ height: "100%" }}
+                      >
+                        <Card
+                          elevation={5}
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                          }}
+                        >
+                          <CardMedia
+                            component="div"
+                            sx={{
+                              // 16:9
+                              pt: "56.25%",
+                              height: "100%",
+                            }}
+                            image={post.imageUrl}
+                          />
+                          <CardContent sx={{ flexGrow: 1 }}>
+                            <Typography variant="body2" color="text.secondary">
+                              {post.description}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))
+                  )}
+                </Grid>
+              </Container>
+            </>
+          )}
         </Container>
       </div>
     </>
-  )
-}
+  );
+};
 
 const EditProfile = () => {
   const {
@@ -209,7 +269,7 @@ const EditProfile = () => {
     profileImage,
     setProfileImage,
     setUserProps,
-  } = useUserStore()
+  } = useUserStore();
 
   const {
     register: registerSenhas,
@@ -218,7 +278,7 @@ const EditProfile = () => {
     formState: { errors: errorsSenha },
   } = useForm<alterarSenhaFormData>({
     resolver: zodResolver(alterarSenhaSchema),
-  })
+  });
 
   const {
     register: registerUsuario,
@@ -226,122 +286,122 @@ const EditProfile = () => {
     formState: { errors: errorsUsuario },
   } = useForm<updateUsuarioFormData>({
     resolver: zodResolver(updateUsuarioSchema),
-  })
+  });
 
-  const [openSuccessSenha, setOpenSuccessSenha] = useState(false)
-  const [openErrorSenha, setOpenErrorSenha] = useState(false)
+  const [openSuccessSenha, setOpenSuccessSenha] = useState(false);
+  const [openErrorSenha, setOpenErrorSenha] = useState(false);
 
-  const [openSuccessDados, setOpenSuccessDados] = useState(false)
-  const [openErrorDados, setOpenErrorDados] = useState(false)
+  const [openSuccessDados, setOpenSuccessDados] = useState(false);
+  const [openErrorDados, setOpenErrorDados] = useState(false);
 
-  const [open, setOpen] = useState(false)
-  const imageRef = useRef(null)
+  const [open, setOpen] = useState(false);
+  const imageRef = useRef(null);
 
   const handleAvatarClick = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const handleClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   const handleBackdropClick = (event) => {
     if (event.target === imageRef.current) {
-      return
+      return;
     }
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   const handleOpenSuccessSenha = () => {
-    setOpenSuccessSenha(true)
-  }
+    setOpenSuccessSenha(true);
+  };
 
   const handleCloseSuccessSenha = (
     event?: React.SyntheticEvent | Event,
-    reason?: string,
+    reason?: string
   ) => {
-    event?.preventDefault()
-    if (reason === 'clickaway') {
-      return
+    event?.preventDefault();
+    if (reason === "clickaway") {
+      return;
     }
 
-    setOpenSuccessSenha(false)
-  }
+    setOpenSuccessSenha(false);
+  };
 
   const handleOpenErrorSenha = () => {
-    setOpenErrorSenha(true)
-  }
+    setOpenErrorSenha(true);
+  };
 
   const handleCloseErrorSenha = (
     event?: React.SyntheticEvent | Event,
-    reason?: string,
+    reason?: string
   ) => {
-    event?.preventDefault()
-    if (reason === 'clickaway') {
-      return
+    event?.preventDefault();
+    if (reason === "clickaway") {
+      return;
     }
 
-    setOpenErrorSenha(false)
-  }
+    setOpenErrorSenha(false);
+  };
 
   const handleOpenSuccessDados = () => {
-    setOpenSuccessDados(true)
-  }
+    setOpenSuccessDados(true);
+  };
 
   const handleCloseSuccessDados = (
     event?: React.SyntheticEvent | Event,
-    reason?: string,
+    reason?: string
   ) => {
-    event?.preventDefault()
-    if (reason === 'clickaway') {
-      return
+    event?.preventDefault();
+    if (reason === "clickaway") {
+      return;
     }
 
-    setOpenSuccessDados(false)
-  }
+    setOpenSuccessDados(false);
+  };
 
   const handleOpenErrorDados = () => {
-    setOpenErrorDados(true)
-  }
+    setOpenErrorDados(true);
+  };
 
   const handleCloseErrorDados = (
     event?: React.SyntheticEvent | Event,
-    reason?: string,
+    reason?: string
   ) => {
-    event?.preventDefault()
-    if (reason === 'clickaway') {
-      return
+    event?.preventDefault();
+    if (reason === "clickaway") {
+      return;
     }
 
-    setOpenErrorDados(false)
-  }
+    setOpenErrorDados(false);
+  };
 
   const handleProfileImageChange = async (
-    event: ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>
   ) => {
-    const files = event.target.files
+    const files = event.target.files;
     if (files === null) {
-      return
+      return;
     }
 
-    const formData = new FormData()
-    formData.append('profile_image', files[0])
+    const formData = new FormData();
+    formData.append("profile_image", files[0]);
 
     try {
       const response = await api.put(`/api/v1/users/${id}/`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
-      })
+      });
 
-      setProfileImage(response.data.profile_image)
+      setProfileImage(response.data.profile_image);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   const handleProfileSubmit: SubmitHandler<updateUsuarioFormData> = async (
-    data,
+    data
   ) => {
     await api
       .put(`/api/v1/users/${id}/`, {
@@ -352,52 +412,52 @@ const EditProfile = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          handleOpenSuccessDados()
+          handleOpenSuccessDados();
           setUserProps(
             id,
             data.name,
             data.username,
             data.email,
-            data.phoneNumber,
-          )
+            data.phoneNumber
+          );
         }
       })
-      .catch(() => handleOpenErrorDados())
-  }
+      .catch(() => handleOpenErrorDados());
+  };
 
   const handlePasswordSubmit: SubmitHandler<alterarSenhaFormData> = async (
-    data,
+    data
   ) => {
     await api
-      .post('/api/v1/users/change-password/', {
+      .post("/api/v1/users/change-password/", {
         old_password: data.senha_antiga,
         new_password: data.senha_nova,
       })
       .then((response) => {
         if (response.status === 200) {
-          handleOpenSuccessSenha()
-          resetSenhas()
+          handleOpenSuccessSenha();
+          resetSenhas();
         }
       })
-      .catch(() => handleOpenErrorSenha())
-  }
+      .catch(() => handleOpenErrorSenha());
+  };
 
   return (
     <div id="profile">
       <Container
-        sx={{ flexGrow: 1, margin: 2, width: '100%', paddingBottom: '20px' }}
+        sx={{ flexGrow: 1, margin: 2, width: "100%", paddingBottom: "20px" }}
       >
         <Typography variant="h3">Configurações da conta</Typography>
-        <Grid container spacing={0} sx={{ padding: '50px' }}>
+        <Grid container spacing={0} sx={{ padding: "50px" }}>
           <Grid item xs={12} md={3} textAlign="center">
             <Avatar
               sx={{
                 width: 150,
                 height: 150,
-                margin: 'auto',
-                marginTop: '15px',
+                margin: "auto",
+                marginTop: "15px",
               }}
-              src={profileImage !== '' ? URL + profileImage : profileImage}
+              src={profileImage !== "" ? URL + profileImage : profileImage}
               onClick={handleAvatarClick}
             />
 
@@ -410,24 +470,24 @@ const EditProfile = () => {
               <Fade in={open}>
                 <div
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100vh',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100vh",
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
                   }}
                 >
                   <img
                     ref={imageRef}
                     src={
-                      profileImage !== '' ? URL + profileImage : profileImage
+                      profileImage !== "" ? URL + profileImage : profileImage
                     }
                     alt="Profile Image"
                     style={{
-                      maxWidth: '90%',
-                      maxHeight: '90%',
-                      boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.5)',
-                      borderRadius: '8px',
+                      maxWidth: "90%",
+                      maxHeight: "90%",
+                      boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.5)",
+                      borderRadius: "8px",
                     }}
                   />
                 </div>
@@ -436,7 +496,7 @@ const EditProfile = () => {
             <Button
               component="label"
               variant="contained"
-              sx={{ margin: '10px' }}
+              sx={{ margin: "10px" }}
             >
               Alterar foto de perfil
               <VisuallyHiddenInput
@@ -451,7 +511,7 @@ const EditProfile = () => {
               <TextField
                 label="Nome"
                 defaultValue={name}
-                {...registerUsuario('name')}
+                {...registerUsuario("name")}
                 error={!!errorsUsuario.name}
                 helperText={errorsUsuario.name?.message}
                 fullWidth
@@ -460,7 +520,7 @@ const EditProfile = () => {
               <TextField
                 label="Usuário"
                 defaultValue={username}
-                {...registerUsuario('username')}
+                {...registerUsuario("username")}
                 error={!!errorsUsuario.username}
                 helperText={errorsUsuario.username?.message}
                 fullWidth
@@ -470,7 +530,7 @@ const EditProfile = () => {
                 label="E-mail"
                 type="email"
                 defaultValue={email}
-                {...registerUsuario('email')}
+                {...registerUsuario("email")}
                 error={!!errorsUsuario.email}
                 helperText={errorsUsuario.email?.message}
                 fullWidth
@@ -479,7 +539,7 @@ const EditProfile = () => {
               <TextField
                 label="Telefone"
                 defaultValue={phoneNumber}
-                {...registerUsuario('phoneNumber')}
+                {...registerUsuario("phoneNumber")}
                 error={!!errorsUsuario.phoneNumber}
                 helperText={errorsUsuario.phoneNumber?.message}
                 fullWidth
@@ -492,7 +552,7 @@ const EditProfile = () => {
 
             {/* Nova seção para a alteração de senha */}
             <form onSubmit={submitSenhas(handlePasswordSubmit)}>
-              <Typography variant="h6" sx={{ marginTop: '20px' }}>
+              <Typography variant="h6" sx={{ marginTop: "20px" }}>
                 Alteração de Senha
               </Typography>
               <TextField
@@ -500,7 +560,7 @@ const EditProfile = () => {
                 label="Senha Atual"
                 fullWidth
                 margin="normal"
-                {...registerSenhas('senha_antiga')}
+                {...registerSenhas("senha_antiga")}
                 error={!!errorsSenha.senha_antiga}
                 helperText={errorsSenha.senha_antiga?.message}
               />
@@ -509,7 +569,7 @@ const EditProfile = () => {
                 label="Nova Senha"
                 fullWidth
                 margin="normal"
-                {...registerSenhas('senha_nova')}
+                {...registerSenhas("senha_nova")}
                 error={!!errorsSenha.senha_nova}
                 helperText={errorsSenha.senha_nova?.message}
               />
@@ -518,7 +578,7 @@ const EditProfile = () => {
                 label="Confirme a Nova Senha"
                 fullWidth
                 margin="normal"
-                {...registerSenhas('senha_nova_confirmar')}
+                {...registerSenhas("senha_nova_confirmar")}
                 error={!!errorsSenha.senha_nova_confirmar}
                 helperText={errorsSenha.senha_nova_confirmar?.message}
               />
@@ -535,7 +595,7 @@ const EditProfile = () => {
                   onClose={handleCloseSuccessSenha}
                   severity="success"
                   variant="filled"
-                  sx={{ width: '100%' }}
+                  sx={{ width: "100%" }}
                 >
                   Senha alterada com sucesso!
                 </Alert>
@@ -550,7 +610,7 @@ const EditProfile = () => {
                   onClose={handleCloseErrorSenha}
                   severity="error"
                   variant="filled"
-                  sx={{ width: '100%' }}
+                  sx={{ width: "100%" }}
                 >
                   Senha antiga incorreta!
                 </Alert>
@@ -565,7 +625,7 @@ const EditProfile = () => {
                   onClose={handleCloseSuccessDados}
                   severity="success"
                   variant="filled"
-                  sx={{ width: '100%' }}
+                  sx={{ width: "100%" }}
                 >
                   Dados alterados com sucesso!
                 </Alert>
@@ -580,7 +640,7 @@ const EditProfile = () => {
                   onClose={handleCloseErrorDados}
                   severity="error"
                   variant="filled"
-                  sx={{ width: '100%' }}
+                  sx={{ width: "100%" }}
                 >
                   Algo deu errado ao atualizar os dados!
                 </Alert>
@@ -590,7 +650,7 @@ const EditProfile = () => {
         </Grid>
       </Container>
     </div>
-  )
-}
+  );
+};
 
-export { EditProfile, Profile }
+export { EditProfile, Profile };
