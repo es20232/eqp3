@@ -50,7 +50,8 @@ const Feed = () => {
   const {
     register: registerComment,
     handleSubmit: handleSubmitComment,
-    formState: { errors: errorsComment }
+    formState: { errors: errorsComment },
+    setValue: setComment
   } = useForm<sendCommentFormData>({
     resolver: zodResolver(sendCommentSchema),
   })
@@ -100,7 +101,10 @@ const Feed = () => {
   const onSubmit: SubmitHandler<sendCommentFormData> = async (data) => {
     if (idPost !== -1)
       await api.
-        post(`api/v1/posts/${idPost}/comments/create`, data);
+        post(`api/v1/posts/${idPost}/comments/create`, data)
+        .then(() => {
+          setComment("comment", "");
+        });
   }
 
   return (
