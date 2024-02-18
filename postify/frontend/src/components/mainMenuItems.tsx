@@ -13,7 +13,7 @@ export const mainMenuItems = [
         id: 1,
         label: 'Postar',
         icon: <PublishIcon fontSize='large'/>,
-        route: 'post'
+        route: '/createPost'
     },
     {
         id: 2,
