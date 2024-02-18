@@ -1,21 +1,30 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import CommentIcon from '@mui/icons-material/Comment'
 import ThumbDownIcon from '@mui/icons-material/ThumbDown'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
   Container,
   Grid,
   IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
   Modal,
-  Typography,
+  TextField,
+  Typography
 } from '@mui/material'
 import { useEffect, useState } from 'react'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import Post from '../../@types/post'
 import { api } from '../../utils/api/api'
+import { sendCommentFormData, sendCommentSchema } from '../../utils/schemas/sendComment'
 
 const style = {
   position: 'absolute' as const,
@@ -29,11 +38,22 @@ const style = {
   p: 4,
 }
 
+const API = 'http://localhost:8000'
+
 const Feed = () => {
   const [posts, setPosts] = useState<Post[]>([])
+  const [idPost, setIdPost] = useState(-1)
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+
+  const {
+    register: registerComment,
+    handleSubmit: handleSubmitComment,
+    formState: { errors: errorsComment }
+  } = useForm<sendCommentFormData>({
+    resolver: zodResolver(sendCommentSchema),
+  })
 
   const handleLike = async (idPost: number) => {
     await api.post(`/api/v1/posts/${idPost}/like/`).then((response) => {
@@ -64,7 +84,7 @@ const Feed = () => {
       // Verifica se já existem posts carregados
       setTimeout(() => {
         fetchPosts() // Se não houver posts, busca os posts
-      }, 3000)
+      }, 1000)
     }
 
     // Não há necessidade de atualizar os posts depois que eles são carregados
@@ -75,6 +95,12 @@ const Feed = () => {
       console.log(response)
       window.location.reload()
     })
+  }
+
+  const onSubmit: SubmitHandler<sendCommentFormData> = async (data) => {
+    if (idPost !== -1)
+      await api.
+        post(`api/v1/posts/${idPost}/comments/create`, data);
   }
 
   return (
@@ -150,20 +176,53 @@ const Feed = () => {
               aria-describedby="modal-modal-description"
             >
               <Box sx={style}>
+                <form
+                  style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+                  onSubmit={handleSubmitComment(onSubmit)}
+                >
+                  <TextField
+                    rows={3}
+                    fullWidth
+                    {...registerComment('comment')}
+                    error={!!errorsComment.comment}
+                    helperText={errorsComment.comment?.message}
+                  />
+                  <Button
+                    type='submit'
+                    variant='contained'
+                    style={{ marginTop: '10px' }}
+                    onClick={() => setIdPost(post.id)}
+                  >
+                    Comentar
+                  </Button>
+                </form>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
                   Comentários
                 </Typography>
-                {post.comments.map((comment) => (
-                  <Box key={comment.id} sx={{ mt: 2 }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{ fontWeight: 'bold', marginLeft: '-8px' }}
-                    >
-                      {comment.user.username}
-                    </Typography>{' '}
-                    <Typography>{comment.comment}</Typography>
-                  </Box>
-                ))}
+                <List
+                  sx={{ maxHeight: '200px', overflow: 'auto', border: `1px solid black` }}
+                >
+                  {post.comments.map((comment) => (
+                    <ListItem key={comment.id} sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Box sx={{ display: 'flex', width: '100%' }}>
+                        <ListItemAvatar>
+                          <Avatar alt={comment.user.name} src={API + comment.user.profile_image} />
+                        </ListItemAvatar>
+                        <ListItemText>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 'bold' }}
+                          >
+                            {comment.user.username}
+                          </Typography>{' '}
+                        </ListItemText>
+                      </Box>
+                      <ListItemText sx={{ height: '100%', width: '100%', borderBottom: '0.3px solid gray' }}>
+                        <Typography textAlign={'justify'}>{comment.comment}</Typography>
+                      </ListItemText>
+                    </ListItem>
+                  ))}
+                </List>
               </Box>
             </Modal>
           </Grid>
