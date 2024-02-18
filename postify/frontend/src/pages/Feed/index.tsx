@@ -62,7 +62,9 @@ const Feed = () => {
 
     if (posts.length === 0) {
       // Verifica se já existem posts carregados
-      fetchPosts() // Se não houver posts, busca os posts
+      setTimeout(() => {
+        fetchPosts() // Se não houver posts, busca os posts
+      }, 3000)
     }
 
     // Não há necessidade de atualizar os posts depois que eles são carregados
