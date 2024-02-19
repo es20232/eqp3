@@ -98,22 +98,21 @@ const Post = () => {
     formData.append("caption", postDescription);
 
     try {
-      const response = await api.post(
-        `api/v1/users/${idUser}/posts/create`,
-        formData,
-        {
+      const response = await api
+        .post(`api/v1/users/${idUser}/posts/create`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
-      );
-      handleOpenSnackbar("Post enviado com sucesso!", "success");
-      setTimeout(() => {
-        navigate("/profile");
-      }, 3000);
-      setPostDescription("");
-      setSelectedFile(null);
-      setImageURL("");
+        })
+        .finally(() => {
+          handleOpenSnackbar("Post enviado com sucesso!", "success");
+          setTimeout(() => {
+            navigate("/profile");
+            setPostDescription("");
+            setSelectedFile(null);
+            setImageURL("");
+          }, 3000);
+        });
     } catch (error) {
       handleOpenSnackbar("Falha ao enviar o post. Tente novamente.", "error");
     }
@@ -194,9 +193,9 @@ const Post = () => {
                       <Box
                         sx={{
                           display: "flex",
-                          flexDirection: "column", 
-                          justifyContent: "center", 
-                          alignItems: "center", 
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
                           height: "600px",
                           width: "100%",
                           backgroundColor: "#f0f0f0",
