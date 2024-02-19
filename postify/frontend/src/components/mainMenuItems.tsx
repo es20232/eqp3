@@ -15,10 +15,10 @@ export const mainMenuItems = [
         icon: <PublishIcon fontSize='large'/>,
         route: '/createPost'
     },
-    {
+   /*  {
         id: 2,
         label: 'Salvar Imagem',
         icon: <SaveIcon fontSize='large'/>,
         route: 'save'
-    },
+    }, */
 ]
