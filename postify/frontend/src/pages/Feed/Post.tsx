@@ -228,7 +228,10 @@ const Post: React.FC<PostParams> = ({ id }) => {
                   Comentar
                 </Button>
               </form>
-              <Comentarios idPost={id} />
+              {
+                comentario > 0 &&
+                <Comentarios idPost={id} />
+              }
             </Box>
           </Modal>
         </Grid>
