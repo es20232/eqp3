@@ -5,13 +5,13 @@ import {
   Container,
   Grid,
   Link,
-  Paper,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material'
 import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import MyPaper from '../../components/MyPaper'
 import { api } from '../../utils/api/api'
 import {
   getEmailFromToken,
@@ -88,7 +88,7 @@ const Login = () => {
 
   return (
     <Container maxWidth={'sm'}>
-      <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+      <MyPaper elevation={3}>
         <Grid container>
           <Grid item xs={12} marginBottom={'10px'}>
             <Typography align="center" variant="h4">
@@ -163,7 +163,7 @@ const Login = () => {
             </Link>
           </Grid>
         </Grid>
-      </Paper>
+      </MyPaper>
     </Container>
   )
 }

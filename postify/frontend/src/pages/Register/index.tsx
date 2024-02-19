@@ -2,16 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Alert,
   Button,
-  Container,
   Grid,
-  Paper,
   TextField,
   Typography
 } from '@mui/material'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import AlertInformativo from '../../components/AlertInformativo'
+import MyContainer from '../../components/MyContainer'
 import { api } from '../../utils/api/api'
 import { registerFormData, registerSchema } from '../../utils/schemas/registerSchema'
 
@@ -78,9 +77,9 @@ const Cadastro = () => {
   }
 
   return (
-    <Container maxWidth={'sm'}>
+    <React.Fragment>
       {cadastrado && areaInformativa()}
-      <Paper elevation={4} style={{ padding: '20px', marginTop: '20px' }}>
+      <MyContainer>
         <Typography align="center" variant="h6">
           Cadastro de Novo usuário
         </Typography>
@@ -177,8 +176,8 @@ const Cadastro = () => {
             </Grid>
           </Grid>
         </form>
-      </Paper>
-    </Container>
+      </MyContainer>
+    </React.Fragment>
   )
 }
 

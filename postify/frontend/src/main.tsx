@@ -11,15 +11,15 @@ import {
   PasswordRecovery,
   SubmitRequest,
   VerifiedEmail,
-} from "./components/Auth/index.ts";
-import PrivateRoute from "./components/PrivateRoute.tsx";
-import Feed from "./pages/Feed/index.tsx";
-import LoginPage from "./pages/Login/index.tsx";
-import Register from "./pages/Register/index.tsx";
-import { EditProfile, Profile } from "./pages/UserProfile/index.tsx";
-import ErrorNotFound from "./pages/errors/notFound.tsx";
-import { ApiConfig } from "./utils/api/api.ts";
-import Search from "./pages/Search/index.tsx";
+} from './components/Auth/index.ts'
+import PrivateRoute from './components/PrivateRoute.tsx'
+import Feed from './pages/Feed/Feed.tsx'
+import LoginPage from './pages/Login/index.tsx'
+import Register from './pages/Register/index.tsx'
+import Search from "./pages/Search/index.tsx"
+import { EditProfile, Profile } from './pages/UserProfile/index.tsx'
+import ErrorNotFound from './pages/errors/notFound.tsx'
+import { ApiConfig } from './utils/api/api.ts'
 import Post from "./pages/Post/index.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -48,7 +48,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route
                 index
                 element={<Feed />}
-                errorElement={<ErrorNotFound />}
               />
             </Route>
             <Route path="/profile" element={<Home />}>

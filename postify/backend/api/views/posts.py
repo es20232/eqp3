@@ -7,7 +7,10 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from ..models import Comment, Deslike, Like, Post, User
-from ..serializers.comment_serializers import CommentSerializer
+from ..serializers.comment_serializers import (
+    CommentSerializer,
+    SimplifiedCommentSerializer,
+)
 from ..serializers.deslike_serializers import DeslikeSerializer
 from ..serializers.like_serializers import LikeSerializer
 from ..serializers.post_serializers import CreatePostSerializer, PostSerializer
@@ -109,7 +112,7 @@ class CommentViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
-                {"detail": "Comentário não encontrado."},
+                {"message": "Comentário não encontrado."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
@@ -132,7 +135,7 @@ class CommentViewSet(ViewSet):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(
-                {"message": "Apenas o dono do post pode apagar comentários."},
+                {"message": "Permissão negada."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -151,6 +154,13 @@ class CreateCommentViewSet(ViewSet):
         post = Post.objects.filter(is_active=True, pk=pk)
         if post.exists():
             user = request.user
+
+            comment = Comment.objects.filter(post=post.get().pk, user=user.pk)
+            if comment.exists():
+                return Response(
+                    {"message": "O Post já foi comentado."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             comment_data = {
                 "comment": request.data["comment"],
@@ -183,11 +193,8 @@ class CommentsFromPostViewSet(ViewSet):
         post = Post.objects.filter(is_active=True, pk=pk)
         if post.exists():
             comments = Comment.objects.filter(post=post.get().pk)
-
-            serializer = CommentSerializer(data=comments, many=True)
-            if serializer.is_valid():
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = SimplifiedCommentSerializer(comments, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(
             {"message": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
@@ -226,8 +233,10 @@ class PostViewSet(ViewSet):
             like = Like.objects.filter(user=user, post=post.get())
 
             if like.exists():
-                like.get().delete()
-                return Response(status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "O Post já foi curtido."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             like_data = {
                 "user": user.pk,
@@ -258,8 +267,10 @@ class PostViewSet(ViewSet):
             deslike = Deslike.objects.filter(user=user, post=post.get())
 
             if deslike.exists():
-                deslike.get().delete()
-                return Response(status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "O Post já foi descurtido."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             deslike_data = {
                 "user": user.pk,
@@ -289,11 +300,12 @@ class PostViewSet(ViewSet):
                 return Response(serialized_post.data, status=status.HTTP_200_OK)
             else:
                 return Response(
-                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
+                    {"message": "Post não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         except Exception as e:
             return Response(
-                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     @transaction.atomic
@@ -320,11 +332,12 @@ class PostViewSet(ViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(
-                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
+                    {"message": "Post não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         except Exception as e:
             return Response(
-                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     @transaction.atomic
@@ -336,13 +349,20 @@ class PostViewSet(ViewSet):
         try:
             post = self.get_a_post_active(pk)
             if post.exists():
-                post.first().delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
+                if request.user == post.get().user:
+                    post.first().delete()
+                    return Response(status=status.HTTP_204_NO_CONTENT)
+                else:
+                    return Response(
+                        {"message": "Permissão negada."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
             else:
                 return Response(
-                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
+                    {"message": "Post não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         except Exception as e:
             return Response(
-                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
