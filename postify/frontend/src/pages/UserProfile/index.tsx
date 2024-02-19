@@ -48,84 +48,59 @@ interface UserProfile {
   name: string;
   username: string;
   profileImage: string | null;
+  id: number | null;
+}
+
+interface Post {
+  id: number | null;
+  caption: string;
+  image: string;
 }
 
 const URL = "http://localhost:8000";
 
 const Profile = () => {
   const { username: paramsUsername } = useParams();
-  const { name, username, profileImage } = useUserStore();
+  const { name, username, profileImage, id } = useUserStore();
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>([]);
+  
   useEffect(() => {
     setLoading(true);
     if (paramsUsername) {
-      api
-        .get(`/api/v1/users?username=${encodeURIComponent(paramsUsername)}`)
+      api.get(`/api/v1/users?username=${encodeURIComponent(paramsUsername)}`)
         .then((response) => {
-          const userData =
-            response.data.length > 0
-              ? {
-                  ...response.data[0],
-                  profileImage: response.data[0].profile_image,
-                }
-              : null;
+          const userData = response.data.length > 0 ? {
+            ...response.data[0],
+            profileImage: response.data[0].profile_image,
+            id: response.data[0].id,
+          } : null;
           setUser(userData);
-          setLoading(false);
         })
         .catch((error) => {
           console.error("Erro ao buscar usuário:", error);
+        })
+    } else {
+      setUser({ name, username, profileImage, id });
+    }
+  }, [paramsUsername, name, username, profileImage, id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      console.log("ID user: ", user.id)
+      api.get(`/api/v1/users/${user.id}/posts`)
+        .then((response) => {
+          setPosts(response.data);
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar posts:", error);
+        })
+        .finally(()=>{
           setLoading(false);
         });
-    } else {
-      setUser({ name, username, profileImage });
-      setLoading(false);
     }
-  }, [paramsUsername, name, username, profileImage]);
-
-  const posts = [
-    {
-      id: 1,
-      imageUrl: "https://source.unsplash.com/random?wallpapers",
-      description: "Bela foto",
-    },
-    {
-      id: 2,
-      imageUrl: "https://source.unsplash.com/random?wallpapers",
-      description: "Bela foto",
-    },
-    {
-      id: 3,
-      imageUrl: "https://source.unsplash.com/random?wallpapers",
-      description: "Bela foto",
-    },
-    {
-      id: 4,
-      imageUrl: "https://source.unsplash.com/random?wallpapers",
-      description: "Bela foto",
-    },
-    {
-      id: 5,
-      imageUrl: "https://source.unsplash.com/random?wallpapers",
-      description: "Bela foto",
-    },
-    {
-      id: 6,
-      imageUrl: "https://source.unsplash.com/random?wallpapers",
-      description: "Bela foto",
-    },
-    {
-      id: 7,
-      imageUrl: "https://source.unsplash.com/random?wallpapers",
-      description: "Bela foto",
-    },
-    {
-      id: 8,
-      imageUrl: "https://source.unsplash.com/random?wallpapers",
-      description: "Bela foto",
-    },
-  ];
+  }, [user?.id]);
 
   useEffect(() => {
     console.log("Estado do usuário atualizado:", user);
@@ -136,9 +111,7 @@ const Profile = () => {
   return (
     <>
       <div id="profile">
-        <Container
-          sx={{ flexGrow: 1, width: "100%", paddingBottom: "20px" }}
-        >
+        <Container sx={{ flexGrow: 1, width: "100%", paddingBottom: "20px" }}>
           {loading ? (
             <Box
               sx={{
@@ -146,9 +119,12 @@ const Profile = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 width: "100%",
+                marginY: "35%",
+                gap: "10px"
               }}
             >
               <CircularProgress />
+              <Typography>Carregando perfil</Typography>
             </Box>
           ) : (
             <>
@@ -238,11 +214,11 @@ const Profile = () => {
                               pt: "56.25%",
                               height: "100%",
                             }}
-                            image={post.imageUrl}
+                            image={URL + post.image}
                           />
                           <CardContent sx={{ flexGrow: 1 }}>
                             <Typography variant="body2" color="text.secondary">
-                              {post.description}
+                              {post.caption}
                             </Typography>
                           </CardContent>
                         </Card>
