@@ -20,11 +20,15 @@ interface Comment {
   updated_at: string
 }
 
-const Comentario: React.FC = () => {
+interface ComentarioParam {
+  idPost: number;
+}
+
+const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
   const [comentarios, setComentarios] = useState<[Comment]>();
 
   const handleGetComentarios = async () => {
-    await api.get(`api/v1/posts/1/comments`)
+    await api.get(`api/v1/posts/${idPost}/comments`)
       .then((response) => {
         setComentarios(response.data)
       })

@@ -11,7 +11,10 @@ const Feed: React.FC = () => {
 
   const handleFeeds = async () => {
     await api.get(`/api/v1/posts`)
-      .then((response) => setPosts(response.data))
+      .then((response) => {
+        setPosts(response.data)
+        console.log(response.data)
+      })
   }
 
   useEffect(() => {

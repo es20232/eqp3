@@ -190,7 +190,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
                 Comentar
               </Button>
             </form>
-            <Comentarios />
+            <Comentarios idPost={id} />
           </Box>
         </Modal>
       </Grid>
