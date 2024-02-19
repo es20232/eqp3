@@ -19,6 +19,10 @@ const Feed: React.FC = () => {
     if (configInicial) {
       handleFeeds();
       setConfigInicial(false);
+    } else {
+      setTimeout(() => {
+        handleFeeds();
+      }, 10000);
     }
   })
 
