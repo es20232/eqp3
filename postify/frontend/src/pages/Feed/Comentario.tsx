@@ -1,7 +1,7 @@
 import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
-import dayjs from 'dayjs';
 import React, { useEffect, useState } from "react";
 import { api } from "../../utils/api/api";
+import formatDate from "../../utils/date/format";
 
 const API = 'http://localhost:8000'
 
@@ -23,10 +23,6 @@ interface Comment {
 
 interface ComentarioParam {
   idPost: number;
-}
-
-const formatDate = (e: any) => {
-  return dayjs(e).locale('pt-br').format('DD/MM/YYYY HH:mm:ss');
 }
 
 const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
