@@ -137,7 +137,7 @@ const Profile = () => {
     <>
       <div id="profile">
         <Container
-          sx={{ flexGrow: 1, margin: 2, width: "100%", paddingBottom: "20px" }}
+          sx={{ flexGrow: 1, width: "100%", paddingBottom: "20px" }}
         >
           {loading ? (
             <Box

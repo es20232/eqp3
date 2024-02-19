@@ -56,7 +56,7 @@ const Search = () => {
 
   return (
     <div id="search">
-      <Container sx={{ flexGrow: 1, marginY: 4 }}>
+      <Container sx={{ flexGrow: 1 }}>
         <Grid container spacing={4} sx={{ paddingBottom: "20px" }}>
           <Grid item xs={12}>
             <Typography variant="h2">Pesquisa por usuários</Typography>
