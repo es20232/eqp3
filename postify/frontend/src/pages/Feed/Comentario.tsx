@@ -16,8 +16,8 @@ interface Comment {
   id: number
   user: User
   comment: string
-  created_at: string
-  updated_at: string
+  created_at: Date
+  updated_at: Date
 }
 
 interface ComentarioParam {
@@ -49,7 +49,7 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
         {comentarios !== undefined && comentarios.map((comment) => (
           <ListItem key={comment.id} sx={{ display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ display: 'flex', width: '100%' }}>
-              <ListItemAvatar>
+              <ListItemAvatar sx={{ display: 'flex', alignItems: 'center' }}>
                 <Avatar alt={comment.user.name} src={API + comment.user.profile_image} />
               </ListItemAvatar>
               <ListItemText>
@@ -58,7 +58,14 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
                   sx={{ fontWeight: 'bold' }}
                 >
                   {comment.user.username}
-                </Typography>{' '}
+                </Typography>
+                <Typography variant="body2">
+                  {
+                    comment.created_at instanceof Date
+                      ? comment.created_at.toUTCString()
+                      : new Date(comment.created_at).toUTCString()
+                  }
+                </Typography>
               </ListItemText>
             </Box>
             <ListItemText sx={{ height: '100%', width: '100%', borderBottom: '0.3px solid gray' }}>
