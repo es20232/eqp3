@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import useUserStore from './userStore'
 
 interface AuthStoreState {
   isAuthenticated: boolean
@@ -10,7 +9,6 @@ interface AuthStoreState {
 
 interface AuthStoreActions extends AuthStoreState {
   login: (accessToken: string, refreshToken: string) => void
-  logout: () => void
   updateTokens: (accessToken: string) => void
 }
 
@@ -22,14 +20,6 @@ const useAuthStore = create<AuthStoreActions>()(
       refreshToken: null,
       login: (accessToken, refreshToken) => {
         set({ accessToken, refreshToken, isAuthenticated: true })
-      },
-      logout: () => {
-        set({
-          accessToken: null,
-          refreshToken: null,
-          isAuthenticated: false,
-        })
-        useUserStore.persist.clearStorage()
       },
       updateTokens: (accessToken) => {
         set({ accessToken })
