@@ -23,7 +23,7 @@ class PasswordResetRequestView(APIView):
                 )
             except User.DoesNotExist:
                 return Response(
-                    {"error": "Usuário não encontrado."},
+                    {"message": "Usuário não encontrado."},
                     status=status.HTTP_404_NOT_FOUND,
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

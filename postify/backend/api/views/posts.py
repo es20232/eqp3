@@ -112,7 +112,7 @@ class CommentViewSet(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
-                {"detail": "Comentário não encontrado."},
+                {"message": "Comentário não encontrado."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
@@ -135,7 +135,7 @@ class CommentViewSet(ViewSet):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(
-                {"message": "Apenas o dono do post pode apagar comentários."},
+                {"message": "Permissão negada."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -300,11 +300,12 @@ class PostViewSet(ViewSet):
                 return Response(serialized_post.data, status=status.HTTP_200_OK)
             else:
                 return Response(
-                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
+                    {"message": "Post não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         except Exception as e:
             return Response(
-                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     @transaction.atomic
@@ -331,11 +332,12 @@ class PostViewSet(ViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(
-                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
+                    {"message": "Post não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         except Exception as e:
             return Response(
-                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     @transaction.atomic
@@ -347,13 +349,20 @@ class PostViewSet(ViewSet):
         try:
             post = self.get_a_post_active(pk)
             if post.exists():
-                post.first().delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
+                if request.user == post.get().user:
+                    post.first().delete()
+                    return Response(status=status.HTTP_204_NO_CONTENT)
+                else:
+                    return Response(
+                        {"message": "Permissão negada."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
             else:
                 return Response(
-                    {"detail": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
+                    {"message": "Post não encontrado."},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         except Exception as e:
             return Response(
-                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
