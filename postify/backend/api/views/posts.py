@@ -7,7 +7,10 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from ..models import Comment, Deslike, Like, Post, User
-from ..serializers.comment_serializers import CommentSerializer
+from ..serializers.comment_serializers import (
+    CommentSerializer,
+    SimplifiedCommentSerializer,
+)
 from ..serializers.deslike_serializers import DeslikeSerializer
 from ..serializers.like_serializers import LikeSerializer
 from ..serializers.post_serializers import CreatePostSerializer, PostSerializer
@@ -152,6 +155,13 @@ class CreateCommentViewSet(ViewSet):
         if post.exists():
             user = request.user
 
+            comment = Comment.objects.filter(post=post.get().pk, user=user.pk)
+            if comment.exists():
+                return Response(
+                    {"message": "O Post já foi comentado."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             comment_data = {
                 "comment": request.data["comment"],
                 "user": user.pk,
@@ -183,11 +193,8 @@ class CommentsFromPostViewSet(ViewSet):
         post = Post.objects.filter(is_active=True, pk=pk)
         if post.exists():
             comments = Comment.objects.filter(post=post.get().pk)
-
-            serializer = CommentSerializer(data=comments, many=True)
-            if serializer.is_valid():
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = SimplifiedCommentSerializer(comments, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(
             {"message": "Post não encontrado."}, status=status.HTTP_404_NOT_FOUND
@@ -226,8 +233,10 @@ class PostViewSet(ViewSet):
             like = Like.objects.filter(user=user, post=post.get())
 
             if like.exists():
-                like.get().delete()
-                return Response(status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "O Post já foi curtido."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             like_data = {
                 "user": user.pk,
@@ -258,8 +267,10 @@ class PostViewSet(ViewSet):
             deslike = Deslike.objects.filter(user=user, post=post.get())
 
             if deslike.exists():
-                deslike.get().delete()
-                return Response(status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "O Post já foi descurtido."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             deslike_data = {
                 "user": user.pk,
