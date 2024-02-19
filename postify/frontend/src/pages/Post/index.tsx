@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import {
   Avatar,
   Box,
@@ -10,18 +10,57 @@ import {
   Typography,
   TextField,
   Button,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import useUserStore from "../../utils/stores/userStore";
 import { api } from "../../utils/api/api"; // Ajuste para sua importação de API
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
 
 const baseURL = "http://localhost:8000";
+
+const postSchema = z.object({
+  postDescription: z.string().min(1, "Por favor, preencha a descrição."),
+  selectedFile: z.any().refine((file) => file instanceof File, {
+    message: "Por favor, selecione uma imagem.",
+  }),
+});
 
 const Post = () => {
   const { username, profileImage: profileImage, id: idUser } = useUserStore();
   const [selectedFile, setSelectedFile] = useState(null);
   const [postDescription, setPostDescription] = useState("");
   const [imageURL, setImageURL] = useState("");
+  const navigate = useNavigate();
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
+
+  const handleOpenSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity); // Define a severidade do Snackbar
+    setOpenSnackbar(true);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+    // Verifica se o Snackbar fechado era de sucesso, então redireciona
+    if (snackbarSeverity === "success") {
+      navigate("/profile");
+    }
+  };
+
+  const handleSnackbarClose = (reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -32,18 +71,30 @@ const Post = () => {
     }
   };
 
-  const handleDescriptionChange = (event) => {
+  const handleDescriptionChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setPostDescription(event.target.value);
   };
 
   const handleSubmit = async () => {
-    if (!selectedFile || !postDescription) {
-      alert("Por favor, selecione uma imagem e preencha a descrição.");
+    const validationResult = postSchema.safeParse({
+      postDescription,
+      selectedFile,
+    });
+
+    if (!validationResult.success) {
+      handleOpenSnackbar(
+        validationResult.error.errors.map((error) => error.message).join(" "),
+        "error"
+      );
       return;
     }
 
     const formData = new FormData();
-    formData.append("image", selectedFile);
+    if (selectedFile != null) {
+      formData.append("image", selectedFile);
+    }
     formData.append("caption", postDescription);
 
     try {
@@ -56,19 +107,36 @@ const Post = () => {
           },
         }
       );
-      console.info("Response: ", response);
+      handleOpenSnackbar("Post enviado com sucesso!", "success");
+      setTimeout(() => {
+        navigate("/profile");
+      }, 3000);
       setPostDescription("");
       setSelectedFile(null);
       setImageURL("");
     } catch (error) {
-      console.error("Erro ao enviar post:", error);
+      handleOpenSnackbar("Falha ao enviar o post. Tente novamente.", "error");
     }
   };
 
   return (
     <>
       <div id="post">
-        <Container sx={{ flexGrow: 1, marginY: 4 }}>
+        <Container sx={{ flexGrow: 1, marginY: 0 }}>
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbarSeverity}
+              sx={{ width: "100%", marginTop: "90px" }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
           <Typography variant="h2">Criar Post</Typography>
           <Grid container sx={{ marginTop: "25px" }}>
             <Grid
@@ -93,15 +161,15 @@ const Post = () => {
                     position: "relative",
                     cursor: "pointer",
                     "&:hover": {
-                      opacity: 0.7, 
+                      opacity: 0.7,
                     },
                   }}
                   onClick={() => {
-                    const inputFile = document.getElementById("fileInput"); 
+                    const inputFile = document.getElementById("fileInput");
                     if (inputFile) {
-                      inputFile.click(); 
+                      inputFile.click();
                     }
-                  }} 
+                  }}
                 >
                   {imageURL && (
                     <img
@@ -122,13 +190,29 @@ const Post = () => {
                     onChange={handleFileChange}
                   />
                   {!imageURL && (
-                    <PhotoCamera
-                      sx={{
-                        fontSize: 60,
-                        position: "absolute",
-                        color: "rgba(0, 0, 0, 0.54)",
-                      }}
-                    />
+                    <>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column", 
+                          justifyContent: "center", 
+                          alignItems: "center", 
+                          height: "600px",
+                          width: "100%",
+                          backgroundColor: "#f0f0f0",
+                        }}
+                      >
+                        <PhotoCamera
+                          sx={{
+                            fontSize: 60,
+                            color: "rgba(0, 0, 0, 0.54)",
+                          }}
+                        />
+                        <Typography variant="subtitle1">
+                          Selecione uma imagem.
+                        </Typography>
+                      </Box>
+                    </>
                   )}
                 </Box>
 
@@ -136,7 +220,7 @@ const Post = () => {
                   <TextField
                     fullWidth
                     variant="outlined"
-                    label="Descrição do Post"
+                    label="Diga algo sobre a imagem..."
                     value={postDescription}
                     onChange={handleDescriptionChange}
                     multiline
