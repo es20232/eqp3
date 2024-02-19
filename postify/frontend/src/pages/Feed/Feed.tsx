@@ -24,7 +24,7 @@ const Feed: React.FC = () => {
   })
 
   return (
-    <MyContainer marginTopo={'120px'}>
+    <MyContainer marginTopo={'120px'} backgroundTransparente={true}>
       {posts !== undefined && posts.map((post) => (
         <PostComponent key={post.id} id={post.id} />
       ))}
