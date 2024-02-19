@@ -39,10 +39,11 @@ const Search = () => {
         .get(`/api/v1/users?username=${encodeURIComponent(username)}`)
         .then((response) => {
           setUsers(response.data);
-          setLoading(false);
         })
         .catch((error) => {
           console.error("Erro ao buscar usuários:", error);
+        })
+        .finally(() => {
           setLoading(false);
         });
     } else {
