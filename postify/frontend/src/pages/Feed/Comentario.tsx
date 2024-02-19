@@ -31,7 +31,7 @@ const formatDate = (e: any) => {
 
 const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
   const [carregamentoInicial, setCarregamentoInicial] = useState(true);
-  const [comentarios, setComentarios] = useState<[Comment]>();
+  const [comentarios, setComentarios] = useState<Comment[]>();
 
   const handleGetComentarios = async () => {
     await api.get(`api/v1/posts/${idPost}/comments`)

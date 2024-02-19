@@ -107,23 +107,21 @@ const MenuBar = () => {
             <Typography variant="h6" component="div" sx={{ textAlign: 'left' }}>
               Postify
             </Typography>
-            <List>
-              <ListItem>
-                {mainMenuItems.map((text) => (
-                  <ListItem
-                    key={text.id}
-                    onClick={() => navigate(text.route)}
-                    disablePadding
-                  >
-                    <ListItemButton sx={{ textAlign: 'center' }}>
-                      <ListItemIcon sx={{ color: 'white', minWidth: 'auto' }}>
-                        {text.icon}
-                      </ListItemIcon>
-                      <ListItemText primary={text.label} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </ListItem>
+            <List sx={{ display: 'flex', marginLeft: '20px' }}>
+              {mainMenuItems.map((text) => (
+                <ListItem
+                  key={text.id}
+                  onClick={() => navigate(text.route)}
+                  disablePadding
+                >
+                  <ListItemButton sx={{ textAlign: 'center' }}>
+                    <ListItemIcon sx={{ color: 'white', minWidth: 'auto' }}>
+                      {text.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={text.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
             </List>
             <div style={{ marginLeft: 'auto', marginRight: 0 }}>
               <form id="searchUser" onSubmit={handleSubmit}>

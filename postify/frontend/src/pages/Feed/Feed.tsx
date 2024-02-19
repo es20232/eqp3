@@ -12,7 +12,6 @@ const Feed: React.FC = () => {
     await api.get(`/api/v1/posts`)
       .then((response) => {
         setPosts(response.data)
-        console.log(response.data)
       })
   }
 
@@ -24,7 +23,7 @@ const Feed: React.FC = () => {
   })
 
   return (
-    <MyContainer marginTopo={'120px'} backgroundTransparente={true}>
+    <MyContainer marginTopo={'120px'}>
       {posts !== undefined && posts.map((post) => (
         <PostComponent key={post.id} id={post.id} />
       ))}
