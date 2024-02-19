@@ -78,10 +78,16 @@ const Post: React.FC<PostParams> = ({ id }) => {
       })
   }
 
-  const handleLike = async (idPost: number) => {
-    await api.post(`/api/v1/posts/${idPost}/like/`).then((response) => {
-      console.log(response)
-    })
+  const handleLike = async () => {
+    await api.post(`/api/v1/posts/${id}/like/`).then(
+      () => handleUpdate()
+    );
+  }
+
+  const handleDislike = async () => {
+    await api.post(`/api/v1/posts/${id}/deslike/`).then(
+      () => handleUpdate()
+    );
   }
 
   const onSubmit: SubmitHandler<sendCommentFormData> = async (data) => {
@@ -123,7 +129,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
             <Box display={'flex'} alignItems={'center'}>
               <IconButton
                 aria-label="like"
-                onClick={() => handleUpdate()}
+                onClick={() => handleLike()}
               >
                 <ThumbUpIcon color={'primary'} />
               </IconButton>
@@ -134,7 +140,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
             <Box display={'flex'} alignItems={'center'}>
               <IconButton
                 aria-label="dislike"
-                onClick={() => handleUpdate()}
+                onClick={() => handleDislike()}
               >
                 <ThumbDownIcon color={'error'} />
               </IconButton>
