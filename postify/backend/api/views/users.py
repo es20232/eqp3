@@ -12,6 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from ..models import EmailConfirmation, User
 from ..serializers.user_serializers import (
     ChangePasswordSerializer,
+    SimplifiedUserSerializer,
     UserRegisterSerializer,
     UserSerializer,
     UserTokenObtainPairSerializer,
@@ -49,7 +50,7 @@ class SearchUserViewSet(ViewSet):
     def list(self, request):
         username = request.query_params.get("username")
         users = User.objects.filter(username__icontains=username)
-        serializer = UserSerializer(users, many=True)
+        serializer = SimplifiedUserSerializer(users, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -65,7 +66,6 @@ class ConfirmEmailView(ViewSet):
             confirmation.user.save()
             confirmation.save()
             return redirect("http://localhost:5173/verified-email")
-            # return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
