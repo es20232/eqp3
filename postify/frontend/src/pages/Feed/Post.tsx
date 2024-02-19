@@ -61,6 +61,10 @@ const Post: React.FC<PostParams> = ({ id }) => {
     if (execucaoInicial === false) {
       setExecucaoInicial(true)
       handleUpdate();
+    } else {
+      setTimeout(() => {
+        handleUpdate();
+      }, 10000)
     }
   })
 
@@ -75,7 +79,6 @@ const Post: React.FC<PostParams> = ({ id }) => {
   const handleUpdate = async () => {
     await api.get(`/api/v1/posts/${id}`)
       .then((response) => {
-        console.log(response.data);
         setLike(response.data?.likes.length);
         setDislike(response.data?.deslikes.length)
         setComentario(response.data?.comments.length)
@@ -109,6 +112,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
         .then(() => {
           setComment("comment", "");
           handleUpdate();
+          handleClose();
         })
         .catch(() => {
           setErro({

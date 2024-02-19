@@ -25,6 +25,7 @@ interface ComentarioParam {
 }
 
 const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
+  const [carregamentoInicial, setCarregamentoInicial] = useState(true);
   const [comentarios, setComentarios] = useState<[Comment]>();
 
   const handleGetComentarios = async () => {
@@ -35,7 +36,14 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
   }
 
   useEffect(() => {
-    handleGetComentarios();
+    if (carregamentoInicial) {
+      handleGetComentarios();
+      setCarregamentoInicial(false);
+    } else {
+      setTimeout(() => {
+        handleGetComentarios();
+      }, 10000)
+    }
   })
 
   return (
