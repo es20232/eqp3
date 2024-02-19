@@ -1,4 +1,5 @@
 import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
+import dayjs from 'dayjs';
 import React, { useEffect, useState } from "react";
 import { api } from "../../utils/api/api";
 
@@ -22,6 +23,10 @@ interface Comment {
 
 interface ComentarioParam {
   idPost: number;
+}
+
+const formatDate = (e: any) => {
+  return dayjs(e).locale('pt-br').format('DD/MM/YYYY HH:mm:ss');
 }
 
 const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
@@ -70,8 +75,8 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
                 <Typography variant="body2">
                   {
                     comment.created_at instanceof Date
-                      ? comment.created_at.toUTCString()
-                      : new Date(comment.created_at).toUTCString()
+                      ? formatDate(comment.created_at.toUTCString())
+                      : formatDate(new Date(comment.created_at).toUTCString())
                   }
                 </Typography>
               </ListItemText>
