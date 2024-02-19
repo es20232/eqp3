@@ -13,13 +13,13 @@ import {
   VerifiedEmail,
 } from './components/Auth/index.ts'
 import PrivateRoute from './components/PrivateRoute.tsx'
-import Feed from './pages/Feed/index.tsx'
+import Feed from './pages/Feed/Feed.tsx'
 import LoginPage from './pages/Login/index.tsx'
 import Register from './pages/Register/index.tsx'
+import Search from "./pages/Search/index.tsx"
 import { EditProfile, Profile } from './pages/UserProfile/index.tsx'
 import ErrorNotFound from './pages/errors/notFound.tsx'
 import { ApiConfig } from './utils/api/api.ts'
-import Search from "./pages/Search/index.tsx";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -47,7 +47,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route
                 index
                 element={<Feed />}
-                errorElement={<ErrorNotFound />}
               />
             </Route>
             <Route path="/profile" element={<Home />}>
@@ -62,10 +61,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path=":username" element={<Profile />} />
             </Route>
             <Route path="/search" element={<Home />}>
-            <Route
+              <Route
                 index
-                element={<Search/>}
-                errorElement={<ErrorNotFound/>}
+                element={<Search />}
+                errorElement={<ErrorNotFound />}
               />
             </Route>
           </Route>

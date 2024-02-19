@@ -104,7 +104,14 @@ const Feed = () => {
         post(`api/v1/posts/${idPost}/comments/create`, data)
         .then(() => {
           setComment("comment", "");
+          testSubmit()
         });
+  }
+
+  const testSubmit = async () => {
+    await api.get(API + "/api/v1/posts/1/").then((response) => {
+      console.log(response.data)
+    })
   }
 
   return (
@@ -141,6 +148,7 @@ const Feed = () => {
                   objectFit: 'cover',
                 }}
               />
+
               <CardContent>
                 <Box display="flex" alignItems="center" mb={1}>
                   <IconButton
