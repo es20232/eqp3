@@ -1,9 +1,8 @@
-import { Container } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Post from '../../@types/post';
+import MyContainer from '../../components/MyContainer';
 import { api } from '../../utils/api/api';
 import PostComponent from './Post';
-
 
 const Feed: React.FC = () => {
   const [configInicial, setConfigInicial] = useState(true);
@@ -25,11 +24,11 @@ const Feed: React.FC = () => {
   })
 
   return (
-    <Container maxWidth={'sm'} sx={{ marginTop: '120px' }}>
+    <MyContainer marginTopo={'120px'}>
       {posts !== undefined && posts.map((post) => (
         <PostComponent key={post.id} id={post.id} />
       ))}
-    </Container>
+    </MyContainer>
   );
 }
 

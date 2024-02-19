@@ -1,44 +1,31 @@
-import { Container, Paper } from "@mui/material";
+import { Container } from "@mui/material";
 import { ReactNode } from "react";
+import MyPaper from "./MyPaper";
 
 interface containerParams {
   children?: ReactNode;
-  marginTopo?: string;
-  marginBaixo?: string;
-  withContainer?: boolean;
+  withDefaultPaper?: boolean;
+  marginTopo?: string | number;
 }
 
-const container: React.FC<containerParams> = ({ children, marginTopo, marginBaixo, withContainer }) => {
+const container: React.FC<containerParams> = ({ children, withDefaultPaper, marginTopo }) => {
   if (marginTopo === undefined)
-    marginTopo = '20px'
-  if (marginBaixo === undefined)
-    marginBaixo = '20px'
-  if (withContainer === undefined || withContainer === false)
+    marginTopo = '20px';
+  if (withDefaultPaper === undefined || withDefaultPaper === false)
     return (
-      <Paper style={{
-        padding: '20px',
-        marginTop: marginTopo,
-        marginBottom: marginBaixo,
-        width: '100%'
-      }}
-      >
-        {children}
-      </Paper>
-    )
+      <Container maxWidth={'sm'} sx={{ marginTop: marginTopo }}>
+        <MyPaper>
+          {children}
+        </MyPaper>
+      </Container>
+    );
 
   return (
     <Container maxWidth={'sm'}>
-      <Paper style={{
-        padding: '20px',
-        marginTop: marginTopo,
-        marginBottom: marginBaixo,
-        width: '100%'
-      }}
-      >
-        {children}
-      </Paper>
+      {children}
     </Container>
-  );
+  )
+
 }
 
 export default container;

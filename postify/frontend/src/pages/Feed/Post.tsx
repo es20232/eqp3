@@ -5,7 +5,7 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { Avatar, Box, Button, Grid, IconButton, Modal, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from 'react-hook-form';
-import MyContainer from "../../components/MyContainer";
+import MyPaper from '../../components/MyPaper';
 import { api } from '../../utils/api/api';
 import { sendCommentFormData, sendCommentSchema } from '../../utils/schemas/sendComment';
 import Comentarios from './Comentario';
@@ -101,7 +101,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
   }
 
   return (
-    <MyContainer withContainer={false}>
+    <MyPaper marginTopo='0px' elevation={4}>
       <Grid container spacing={2}>
         <Grid container item xs={12} sx={{ display: 'flex' }}>
           <Grid item xs={2}>
@@ -194,7 +194,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
           </Box>
         </Modal>
       </Grid>
-    </MyContainer >
+    </MyPaper>
   );
 }
 
