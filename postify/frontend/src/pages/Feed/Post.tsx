@@ -186,6 +186,9 @@ const Post: React.FC<PostParams> = ({ id }) => {
                 objectFit: 'cover',
               }}
             />
+            <Typography variant="body2" sx={{ mt: 2 }}>
+              {post.caption}
+            </Typography>
           </Grid>
           <Grid container item xs={12}>
             <Grid item xs={2}>
