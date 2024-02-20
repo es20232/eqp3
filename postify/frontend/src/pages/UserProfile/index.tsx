@@ -1,4 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import {
   Alert,
   Avatar,
@@ -9,8 +13,14 @@ import {
   CardMedia,
   CircularProgress,
   Container,
+  Divider,
   Fade,
   Grid,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Modal,
   Snackbar,
   TextField,
@@ -20,7 +30,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { Form, useParams } from "react-router-dom";
 import { api } from "../../utils/api/api";
 import {
   alterarSenhaFormData,
@@ -31,6 +41,22 @@ import {
   updateUsuarioSchema,
 } from "../../utils/schemas/updateUsuarioSchema";
 import useUserStore from "../../utils/stores/userStore";
+import { boolean } from "zod";
+
+const style = {
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "80%", // Largura do modal como 80% da largura da janela
+  height: "auto", // Altura se ajusta automaticamente ao conteúdo
+  maxWidth: "80%",
+  maxHeight: "100%", // Limita a altura máxima para evitar sobreposição com a borda da janela
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  borderRadius: "5px",
+  overflowY: "auto", // Permite rolagem vertical se o conteúdo exceder a altura do modal
+};
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -55,6 +81,10 @@ interface Post {
   id: number | null;
   caption: string;
   image: string;
+  likes: number;
+  deslikes: number;
+  comment: string;
+  user: UserProfile;
 }
 
 const URL = "http://localhost:8000";
@@ -65,46 +95,136 @@ const Profile = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
-  
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const [openM, setOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post>();
+  const [refreshPosts, setRefreshPosts] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+
+  const handleModalOpen = (post) => {
+    setSelectedPost(post); // Armazena o post selecionado
+    setOpen(true); // Abre o modal
+  };
+
+  const handleModalClose = () => {
+    setOpen(false); // Fecha o modal
+    setAnchorEl(null); // Garante que o estado do menu seja limpo
+  };
+
+  const handleClick = (event, postId) => {
+    event?.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setSelectedPostId(postId);
+  };
+
+  const [commentValue, setCommentValue] = useState("");
+  const handleCommentSubmit = (e, postId) => {
+    e.preventDefault(); // Previne o comportamento padrão do formulário
+    SubmitComment(postId, commentValue);
+  };
+
+  const handleClose = (event) => {
+    event?.stopPropagation(); // Interrompe a propagação do evento
+    setAnchorEl(null); // Fecha o menu
+  };
+
+  const handleDelete = async (event) => {
+    event.stopPropagation(); // Interrompe a propagação do evento para evitar abrir o modal
+    console.log("PostID: ", selectedPostId)
+    try {
+      await api.delete(`/api/v1/posts/${selectedPostId}/`);
+      alert("Post deletado com sucesso!");
+      setAnchorEl(null);
+      const updatedPosts = posts.filter((post) => post.id !== selectedPostId);
+    setPosts(updatedPosts);
+    } catch (error) {
+      console.error("Erro ao deletar o post:", error);
+      alert("Não foi possível deletar o post.");
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     if (paramsUsername) {
-      api.get(`/api/v1/users?username=${encodeURIComponent(paramsUsername)}`)
+      api
+        .get(`/api/v1/users?username=${encodeURIComponent(paramsUsername)}`)
         .then((response) => {
-          const userData = response.data.length > 0 ? {
-            ...response.data[0],
-            profileImage: response.data[0].profile_image,
-            id: response.data[0].id,
-          } : null;
+          const userData =
+            response.data.length > 0
+              ? {
+                  ...response.data[0],
+                  profileImage: response.data[0].profile_image,
+                  id: response.data[0].id,
+                }
+              : null;
           setUser(userData);
         })
         .catch((error) => {
           console.error("Erro ao buscar usuário:", error);
-        })
+        });
     } else {
       setUser({ name, username, profileImage, id });
     }
   }, [paramsUsername, name, username, profileImage, id]);
 
+  const SubmitComment = async (postId, comment) => {
+    try {
+      await api.post(`/api/v1/posts/${postId}/comments/create`, {
+        comment: comment,
+      });
+      setRefreshPosts((prev) => !prev);
+    } catch (error) {}
+  };
+
   useEffect(() => {
     if (user?.id) {
-      console.log("ID user: ", user.id)
-      api.get(`/api/v1/users/${user.id}/posts`)
+      api
+        .get(`/api/v1/users/${user.id}/posts`)
         .then((response) => {
+          console.log(response.data);
           setPosts(response.data);
         })
         .catch((error) => {
           console.error("Erro ao buscar posts:", error);
         })
-        .finally(()=>{
+        .finally(() => {
           setLoading(false);
         });
     }
-  }, [user?.id]);
+  }, [user?.id, refreshPosts]);
 
-  useEffect(() => {
-    console.log("Estado do usuário atualizado:", user);
-  }, [user]);
+  const handleLike = async (id) => {
+    event?.stopPropagation();
+    try {
+      // Faz a requisição para curtir o post
+      await api.post(`/api/v1/posts/${id}/like/`);
+      // Atualiza a lista de posts com a nova contagem de likes para o post especificado
+      const updatedPosts = posts.map((post) =>
+        post.id === id ? { ...post, likes: [...post.likes, { id: id }] } : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      console.error("Erro ao curtir o post:", error);
+    }
+  };
+
+  const handleDislike = async (id) => {
+    event?.stopPropagation();
+    try {
+      // Faz a requisição para curtir o post
+      await api.post(`/api/v1/posts/${id}/deslike/`);
+      // Atualiza a lista de posts com a nova contagem de likes para o post especificado
+      const updatedPosts = posts.map((post) =>
+        post.id === id
+          ? { ...post, deslikes: [...post.deslikes, { id: id }] }
+          : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      console.error("Erro ao curtir o post:", error);
+    }
+  };
 
   const postsCount = posts.length;
 
@@ -120,7 +240,7 @@ const Profile = () => {
                 alignItems: "center",
                 width: "100%",
                 marginY: "35%",
-                gap: "10px"
+                gap: "10px",
               }}
             >
               <CircularProgress />
@@ -155,22 +275,6 @@ const Profile = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                {/* <Grid
-                          item
-                          xs={12}
-                          md={3}
-                          sx={{ display: "flex", justifyContent: "right" }}
-                        >
-                          <Button
-                            sx={{ height: "50px" }}
-                            color="primary"
-                            variant="contained"
-                            startIcon={<SettingsIcon />}
-                            onClick={() => navigate("/profile/edit")}
-                          >
-                            Configurações
-                          </Button>
-                        </Grid> */}
               </Grid>
 
               <Container sx={{ paddingBottom: "20px" }}>
@@ -200,12 +304,224 @@ const Profile = () => {
                         md={4}
                         sx={{ height: "100%" }}
                       >
+                        <Modal
+                          open={openM}
+                          onClose={handleModalClose}
+                          aria-labelledby="modal-modal-title"
+                          aria-describedby="modal-modal-description"
+                        >
+                          <Box sx={style}>
+                            {selectedPost && (
+                              <>
+                                <Grid
+                                  container
+                                  justifyContent="space-between"
+                                  style={{ display: "flex" }}
+                                >
+                                  <Grid item xs={12} md={6}>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        justifyContent: "flex-start", // Alinha o conteúdo à esquerda
+                                        alignItems: "center",
+                                        overflow: "hidden",
+                                        width: "40vw", // Define a largura do quadrado
+                                        height: "40vw", // Define a altura do quadrado, mantendo a proporção quadrada
+                                      }}
+                                    >
+                                      <img
+                                        src={URL + selectedPost.image}
+                                        alt="Post"
+                                        style={{
+                                          width: "100%", // A imagem ocupará 100% da largura do Box
+                                          height: "100%", // A imagem ocupará 100% da altura do Box
+                                          objectFit: "cover", // A imagem cobrirá o espaço disponível, cortando as partes excedentes
+                                        }}
+                                      />
+                                    </Box>
+                                  </Grid>
+                                  <Grid item xs={12} md={6}>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "flex-start",
+                                        alignItems: "flex-start",
+                                        paddingTop: "20px",
+                                        paddingLeft: "30px",
+                                        paddingRight: "30px",
+                                        overflowY: "auto",
+                                        maxHeight: "40vw", // Ajuste para igualar à altura da imagem
+                                        width: "100%",
+                                      }}
+                                    >
+                                      {/* Avatar, Username, e Descrição */}
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          width: "100%",
+                                          marginBottom: 2,
+                                        }}
+                                      >
+                                        <Avatar
+                                          src={URL + user?.profileImage}
+                                          alt={user?.name}
+                                          sx={{ marginRight: 1 }}
+                                        />
+                                        <Typography variant="h6">
+                                          {user?.username}
+                                        </Typography>
+                                      </Box>
+                                      <Typography variant="h6" component="p">
+                                        Descrição
+                                      </Typography>
+                                      <Box
+                                        sx={{
+                                          width: "100%", // Largura fixa
+                                          height: "10vw", // Altura fixa
+                                          overflowY: "auto", // Permite a rolagem vertical se o conteúdo exceder a altura
+                                          border: "1px solid grey", // Define a borda
+                                          borderRadius: "4px", // Arredonda os cantos da borda
+                                          padding: 1, // Adiciona um pouco de espaço interno
+                                          bgcolor: "background.paper", // Usa a cor de fundo do tema para o papel
+                                        }}
+                                      >
+                                        <Typography
+                                          variant="body1"
+                                          component="p"
+                                        >
+                                          {selectedPost.caption}
+                                        </Typography>
+                                      </Box>
+                                      <Box display={"flex"} marginTop={"10px"}>
+                                        <Box
+                                          display={"flex"}
+                                          alignItems={"center"}
+                                        >
+                                          <IconButton
+                                            aria-label="like"
+                                            onClick={() =>
+                                              handleLike(selectedPost.id)
+                                            }
+                                          >
+                                            <ThumbUpIcon color={"primary"} />
+                                          </IconButton>
+                                          <Typography variant="body2">
+                                            {selectedPost.likes.length}
+                                          </Typography>
+                                        </Box>
+                                        <Box
+                                          display={"flex"}
+                                          alignItems={"center"}
+                                        >
+                                          <IconButton
+                                            aria-label="dislike"
+                                            onClick={() =>
+                                              handleDislike(selectedPost.id)
+                                            }
+                                          >
+                                            <ThumbDownIcon color={"error"} />
+                                          </IconButton>
+                                          <Typography variant="body2">
+                                            {selectedPost.deslikes.length}
+                                          </Typography>
+                                        </Box>
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          mt: 1,
+                                          p: 2,
+                                          bgcolor: "background.paper",
+                                          border: "1px solid grey",
+                                          borderRadius: "4px",
+                                          overflowY: "auto",
+                                          height: "50vh", // Ajuste para acompanhar a proporção da descrição
+                                          width: "100%",
+                                          marginBottom: "25px",
+                                        }}
+                                      >
+                                        <Typography variant={"h6"}>
+                                          Comentarios:{" "}
+                                          {selectedPost.comments.length}
+                                        </Typography>
+                                        <Box
+                                          sx={{
+                                            mt: 1,
+                                            p: 2,
+                                            bgcolor: "background.paper",
+                                            borderRadius: "4px",
+                                            overflowY: "auto",
+                                            maxHeight: "14vh", // Ajuste conforme necessário
+                                            width: "100%", // Usar 100% para ocupar toda a largura disponível
+                                          }}
+                                        >
+                                          {selectedPost.comments.length > 0 ? (
+                                            selectedPost.comments.map(
+                                              (comment, index) => (
+                                                <Box key={index} sx={{ mb: 2 }}>
+                                                  <Typography
+                                                    variant="body1"
+                                                    sx={{ fontWeight: "bold" }}
+                                                  >
+                                                    {comment.user.name}:
+                                                  </Typography>
+                                                  <Typography variant="body2">
+                                                    {comment.comment}
+                                                  </Typography>
+                                                </Box>
+                                              )
+                                            )
+                                          ) : (
+                                            <Typography variant="body2">
+                                              Nenhum comentário ainda.
+                                            </Typography>
+                                          )}
+                                        </Box>
+                                        <form
+                                          onSubmit={(e) =>
+                                            handleCommentSubmit(
+                                              e,
+                                              selectedPost.id
+                                            )
+                                          }
+                                        >
+                                          <TextField
+                                            fullWidth
+                                            variant="outlined"
+                                            label="Adicione um comentário"
+                                            multiline
+                                            rows={2}
+                                            margin="normal"
+                                            onChange={(e) =>
+                                              setCommentValue(e.target.value)
+                                            }
+                                          />
+
+                                          <Button
+                                            type="submit"
+                                            variant="contained"
+                                            color="primary"
+                                            sx={{ mt: 2 }}
+                                          >
+                                            Enviar
+                                          </Button>
+                                        </form>
+                                      </Box>
+                                    </Box>
+                                  </Grid>
+                                </Grid>
+                              </>
+                            )}
+                          </Box>
+                        </Modal>
                         <Card
                           elevation={5}
                           sx={{
                             display: "flex",
                             flexDirection: "column",
                           }}
+                          onClick={() => handleModalOpen(post)}
                         >
                           <CardMedia
                             component="div"
@@ -217,9 +533,67 @@ const Profile = () => {
                             image={URL + post.image}
                           />
                           <CardContent sx={{ flexGrow: 1 }}>
-                            <Typography variant="body2" color="text.secondary">
-                              {post.caption}
-                            </Typography>
+                            <Grid container spacing={1}>
+                              <Grid item>
+                                <Box display={"flex"} alignItems={"center"}>
+                                  <IconButton
+                                    aria-label="like"
+                                    onClick={(event) =>
+                                      handleLike(event, post.id)
+                                    }
+                                  >
+                                    <ThumbUpIcon color={"primary"} />
+                                  </IconButton>
+                                  <Typography variant="body2">
+                                    {post.likes.length}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid item>
+                                <Box display={"flex"} alignItems={"center"}>
+                                  <IconButton
+                                    aria-label="dislike"
+                                    onClick={(event) =>
+                                      handleDislike(event, post.id)
+                                    }
+                                  >
+                                    <ThumbDownIcon color={"error"} />
+                                  </IconButton>
+                                  <Typography variant="body2">
+                                    {post.deslikes.length}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid item sx={{ marginLeft: "50%" }}>
+                                {id === post.user.id && (
+                                  <>
+                                    <IconButton
+                                      aria-label="settings"
+                                      onClick={(event) => handleClick(event, post.id)}
+                                    >
+                                      <MoreVertIcon />
+                                    </IconButton>
+                                    <Menu
+                                      id="post-menu"
+                                      anchorEl={anchorEl}
+                                      open={open}
+                                      onClose={handleClose}
+                                    >
+                                      <MenuItem
+                                        onClick={handleDelete}
+                                      >
+                                        <ListItemIcon>
+                                          <DeleteIcon />
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                          Excluir Post
+                                        </ListItemText>
+                                      </MenuItem>
+                                    </Menu>
+                                  </>
+                                )}
+                              </Grid>
+                            </Grid>
                           </CardContent>
                         </Card>
                       </Grid>
