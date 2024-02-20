@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Post } from '../../@types/post'
 import MyContainer from '../../components/MyContainer'
 import { api } from '../../utils/api/api'
-import PostComponent from './Post'
+import PostComponent from './PostComponent'
 
 const Feed: React.FC = () => {
   const [configInicial, setConfigInicial] = useState(true)
