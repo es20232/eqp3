@@ -194,7 +194,7 @@ const Profile = () => {
     }
   }, [user?.id, refreshPosts]);
 
-  const handleLike = async (event, id) => {
+  const handleLike = async (id) => {
     event?.stopPropagation();
     try {
       // Faz a requisição para curtir o post
@@ -209,7 +209,7 @@ const Profile = () => {
     }
   };
 
-  const handleDislike = async (event, id) => {
+  const handleDislike = async (id) => {
     event?.stopPropagation();
     try {
       // Faz a requisição para curtir o post
