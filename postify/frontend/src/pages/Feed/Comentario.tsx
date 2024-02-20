@@ -1,6 +1,8 @@
+import DeleteIcon from '@mui/icons-material/Delete'
 import {
   Avatar,
   Box,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -11,7 +13,7 @@ import React, { useEffect, useState } from 'react'
 import { api } from '../../utils/api/api'
 import formatDate from '../../utils/date/format'
 
-const API = 'http://localhost:8000'
+const API = 'http://localhost:8000' // Substitua 'http://example.com' pelo URL correto da sua API
 
 interface User {
   id: number
@@ -38,9 +40,14 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
   const [comentarios, setComentarios] = useState<Comment[]>()
 
   const handleGetComentarios = async () => {
-    await api.get(`api/v1/posts/${idPost}/comments`).then((response) => {
-      setComentarios(response.data)
-    })
+    await api
+      .get(`api/v1/posts/${idPost}/comments`)
+      .then((response) => {
+        setComentarios(response.data)
+      })
+      .catch((error) => {
+        console.error('Erro ao obter comentários:', error)
+      })
   }
 
   useEffect(() => {
@@ -48,11 +55,20 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
       handleGetComentarios()
       setCarregamentoInicial(false)
     } else {
-      setTimeout(() => {
-        handleGetComentarios()
-      }, 10000)
+      const intervalId = setInterval(handleGetComentarios, 10000)
+
+      return () => clearInterval(intervalId)
     }
-  }, [carregamentoInicial])
+  }, [carregamentoInicial]) // Corrigido para adicionar carregamentoInicial como dependência do useEffect
+
+  const handleDeleteComment = async (idComment: number) => {
+    try {
+      await api.delete(`api/v1/comments/${idComment}`)
+      handleGetComentarios()
+    } catch (error) {
+      console.error('Erro ao excluir comentário:', error)
+    }
+  }
 
   return (
     <React.Fragment>
@@ -80,9 +96,7 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
                     {comment.user.username}
                   </Typography>
                   <Typography variant="body2">
-                    {comment.created_at instanceof Date
-                      ? formatDate(comment.created_at.toUTCString())
-                      : formatDate(new Date(comment.created_at).toUTCString())}
+                    {formatDate(comment.created_at)}
                   </Typography>
                 </ListItemText>
               </Box>
@@ -95,6 +109,12 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
               >
                 <Typography textAlign={'justify'}>{comment.comment}</Typography>
               </ListItemText>
+              <IconButton
+                onClick={() => handleDeleteComment(comment.id)}
+                size="small"
+              >
+                <DeleteIcon />
+              </IconButton>
             </ListItem>
           ))}
       </List>
