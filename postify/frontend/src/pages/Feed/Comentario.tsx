@@ -1,6 +1,7 @@
 import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { api } from "../../utils/api/api";
+import formatDate from "../../utils/date/format";
 
 const API = 'http://localhost:8000'
 
@@ -25,7 +26,8 @@ interface ComentarioParam {
 }
 
 const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
-  const [comentarios, setComentarios] = useState<[Comment]>();
+  const [carregamentoInicial, setCarregamentoInicial] = useState(true);
+  const [comentarios, setComentarios] = useState<Comment[]>();
 
   const handleGetComentarios = async () => {
     await api.get(`api/v1/posts/${idPost}/comments`)
@@ -35,7 +37,14 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
   }
 
   useEffect(() => {
-    handleGetComentarios();
+    if (carregamentoInicial) {
+      handleGetComentarios();
+      setCarregamentoInicial(false);
+    } else {
+      setTimeout(() => {
+        handleGetComentarios();
+      }, 10000)
+    }
   })
 
   return (
@@ -62,8 +71,8 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
                 <Typography variant="body2">
                   {
                     comment.created_at instanceof Date
-                      ? comment.created_at.toUTCString()
-                      : new Date(comment.created_at).toUTCString()
+                      ? formatDate(comment.created_at.toUTCString())
+                      : formatDate(new Date(comment.created_at).toUTCString())
                   }
                 </Typography>
               </ListItemText>

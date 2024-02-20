@@ -62,7 +62,7 @@ const SubmitRequest = () => {
   return (
     <React.Fragment>
       {(status.erro || status.sucess) && alert()}
-      <MyContainer>
+      <MyContainer withDefaultPaper={true}>
         <Grid container>
           <Grid item xs={12}>
             <Typography variant="h6" textAlign={'center'}>

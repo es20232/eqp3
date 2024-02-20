@@ -8,6 +8,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import AlertInformativo from '../../components/AlertInformativo';
 import MyPaper from '../../components/MyPaper';
 import { api } from '../../utils/api/api';
+import formatDate from '../../utils/date/format';
 import { sendCommentFormData, sendCommentSchema } from '../../utils/schemas/sendComment';
 import Comentarios from './Comentario';
 
@@ -34,8 +35,8 @@ const Post: React.FC<PostParams> = ({ id }) => {
   const [user, setUser] = useState<{ nome: string, image: string }>({
     nome: '', image: ''
   })
-  const [post, setPost] = useState<{ image: string, caption: string }>({
-    image: '', caption: ''
+  const [post, setPost] = useState<{ image: string, caption: string, created_at: Date }>({
+    image: '', caption: '', created_at: new Date()
   })
   const [like, setLike] = useState(0)
   const [dislike, setDislike] = useState(0)
@@ -61,6 +62,10 @@ const Post: React.FC<PostParams> = ({ id }) => {
     if (execucaoInicial === false) {
       setExecucaoInicial(true)
       handleUpdate();
+    } else {
+      setTimeout(() => {
+        handleUpdate();
+      }, 10000)
     }
   })
 
@@ -75,7 +80,6 @@ const Post: React.FC<PostParams> = ({ id }) => {
   const handleUpdate = async () => {
     await api.get(`/api/v1/posts/${id}`)
       .then((response) => {
-        console.log(response.data);
         setLike(response.data?.likes.length);
         setDislike(response.data?.deslikes.length)
         setComentario(response.data?.comments.length)
@@ -85,7 +89,8 @@ const Post: React.FC<PostParams> = ({ id }) => {
         })
         setPost({
           image: response.data?.image,
-          caption: response.data?.caption
+          caption: response.data?.caption,
+          created_at: new Date(response.data?.created_at + "")
         })
       })
   }
@@ -109,6 +114,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
         .then(() => {
           setComment("comment", "");
           handleUpdate();
+          handleClose();
         })
         .catch(() => {
           setErro({
@@ -135,13 +141,14 @@ const Post: React.FC<PostParams> = ({ id }) => {
       <MyPaper marginTopo='0px' elevation={4}>
         <Grid container spacing={2}>
           <Grid container item xs={12} sx={{ display: 'flex' }}>
-            <Grid item xs={2}>
+            <Grid item xs={2} >
               <Avatar
                 src={API + user.image}
               />
             </Grid>
-            <Grid item xs={10}>
-              <Typography variant="h6">{user.nome}</Typography>
+            <Grid item xs={10} style={{ display: 'flex' }}>
+              <Typography variant="h6" sx={{ width: '100%' }} textAlign={'left'}>{user.nome}</Typography>
+              <Typography variant='body2'>{formatDate(post.created_at.toString())}</Typography>
             </Grid>
           </Grid>
           <Grid item xs={12}>
@@ -221,7 +228,10 @@ const Post: React.FC<PostParams> = ({ id }) => {
                   Comentar
                 </Button>
               </form>
-              <Comentarios idPost={id} />
+              {
+                comentario > 0 &&
+                <Comentarios idPost={id} />
+              }
             </Box>
           </Modal>
         </Grid>

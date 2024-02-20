@@ -68,11 +68,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }))
 
-const URL = "http://localhost:8000";
+const URL = 'http://localhost:8000'
 
 const MenuBar = () => {
-  const { logout } = useAuthStore()
-  const { profileImage } = useUserStore();
+  const { profileImage } = useUserStore()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const navigate = useNavigate()
   const open = Boolean(anchorEl)
@@ -86,10 +85,10 @@ const MenuBar = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!searchValue.trim()) {
-      return; 
+      return
     }
     navigate('/search', { state: { query: searchValue } })
-    setSearchValue("")
+    setSearchValue('')
   }
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -108,23 +107,21 @@ const MenuBar = () => {
             <Typography variant="h6" component="div" sx={{ textAlign: 'left' }}>
               Postify
             </Typography>
-            <List>
-              <ListItem>
-                {mainMenuItems.map((text) => (
-                  <ListItem
-                    key={text.id}
-                    onClick={() => navigate(text.route)}
-                    disablePadding
-                  >
-                    <ListItemButton sx={{ textAlign: 'center' }}>
-                      <ListItemIcon sx={{ color: 'white', minWidth: 'auto' }}>
-                        {text.icon}
-                      </ListItemIcon>
-                      <ListItemText primary={text.label} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </ListItem>
+            <List sx={{ display: 'flex', marginLeft: '20px' }}>
+              {mainMenuItems.map((text) => (
+                <ListItem
+                  key={text.id}
+                  onClick={() => navigate(text.route)}
+                  disablePadding
+                >
+                  <ListItemButton sx={{ textAlign: 'center' }}>
+                    <ListItemIcon sx={{ color: 'white', minWidth: 'auto' }}>
+                      {text.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={text.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
             </List>
             <div style={{ marginLeft: 'auto', marginRight: 0 }}>
               <form id="searchUser" onSubmit={handleSubmit}>
@@ -152,7 +149,7 @@ const MenuBar = () => {
                 onClick={handleMenu}
                 color="inherit"
               >
-                <Avatar src={profileImage ? URL + profileImage : undefined}/>
+                <Avatar src={profileImage ? URL + profileImage : undefined} />
               </IconButton>
               <Menu
                 anchorEl={anchorEl}
@@ -214,9 +211,8 @@ const MenuBar = () => {
                 <Divider />
                 <MenuItem
                   onClick={() => {
-                    handleClose()
-                    logout()
                     useAuthStore.persist.clearStorage()
+                    useUserStore.persist.clearStorage()
                     navigate('/')
                   }}
                 >

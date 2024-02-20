@@ -11,7 +11,7 @@ interface containerParams {
 const container: React.FC<containerParams> = ({ children, withDefaultPaper, marginTopo }) => {
   if (marginTopo === undefined)
     marginTopo = '20px';
-  if (withDefaultPaper === undefined || withDefaultPaper === false)
+  if (withDefaultPaper !== undefined && withDefaultPaper !== false)
     return (
       <Container maxWidth={'sm'} sx={{ marginTop: marginTopo }}>
         <MyPaper>
@@ -21,7 +21,7 @@ const container: React.FC<containerParams> = ({ children, withDefaultPaper, marg
     );
 
   return (
-    <Container maxWidth={'sm'}>
+    <Container maxWidth={'sm'} style={{ marginTop: marginTopo }}>
       {children}
     </Container>
   )

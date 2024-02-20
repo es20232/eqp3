@@ -12,7 +12,6 @@ const Feed: React.FC = () => {
     await api.get(`/api/v1/posts`)
       .then((response) => {
         setPosts(response.data)
-        console.log(response.data)
       })
   }
 
@@ -20,6 +19,10 @@ const Feed: React.FC = () => {
     if (configInicial) {
       handleFeeds();
       setConfigInicial(false);
+    } else {
+      setTimeout(() => {
+        handleFeeds();
+      }, 10000);
     }
   })
 
