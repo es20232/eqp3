@@ -15,6 +15,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { Post } from '../../@types/post'
 import AlertInformativo from '../../components/AlertInformativo'
 import MyPaper from '../../components/MyPaper'
 import { api } from '../../utils/api/api'
@@ -36,28 +37,21 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '100%',
+  maxWidth: 800,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
 }
 
-const Post: React.FC<PostParams> = ({ id }) => {
+const PostComponent: React.FC<PostParams> = ({ id }) => {
   const [execucaoInicial, setExecucaoInicial] = useState(false)
   const [user, setUser] = useState<{ nome: string; image: string }>({
     nome: '',
     image: '',
   })
-  const [post, setPost] = useState<{
-    image: string
-    caption: string
-    created_at: Date
-  }>({
-    image: '',
-    caption: '',
-    created_at: new Date(),
-  })
+  const [post, setPost] = useState<Post>({})
   const [like, setLike] = useState(0)
   const [dislike, setDislike] = useState(0)
   const [comentario, setComentario] = useState(0)
@@ -172,7 +166,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
                 {user.nome}
               </Typography>
               <Typography variant="body2">
-                {formatDate(post.created_at.toString())}
+                {formatDate(post.created_at)}
               </Typography>
             </Grid>
           </Grid>
@@ -256,7 +250,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
                   Comentar
                 </Button>
               </form>
-              {comentario > 0 && <Comentarios idPost={id} />}
+              {comentario > 0 && <Comentarios idPost={id} post={post} />}
             </Box>
           </Modal>
         </Grid>
@@ -265,4 +259,4 @@ const Post: React.FC<PostParams> = ({ id }) => {
   )
 }
 
-export default Post
+export default PostComponent

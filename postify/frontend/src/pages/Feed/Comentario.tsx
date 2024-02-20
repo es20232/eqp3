@@ -10,10 +10,12 @@ import {
   Typography,
 } from '@mui/material'
 import React, { useEffect, useState } from 'react'
+import { Post } from '../../@types/post'
 import { api } from '../../utils/api/api'
 import formatDate from '../../utils/date/format'
+import useUserStore from '../../utils/stores/userStore'
 
-const API = 'http://localhost:8000' // Substitua 'http://example.com' pelo URL correto da sua API
+const API = 'http://localhost:8000'
 
 interface User {
   id: number
@@ -33,21 +35,22 @@ interface Comment {
 
 interface ComentarioParam {
   idPost: number
+  post: Post
 }
 
-const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
+const Comentario: React.FC<ComentarioParam> = ({ idPost, post }) => {
+  const { id } = useUserStore()
+  console.log(post.user.id)
   const [carregamentoInicial, setCarregamentoInicial] = useState(true)
   const [comentarios, setComentarios] = useState<Comment[]>()
 
   const handleGetComentarios = async () => {
-    await api
-      .get(`api/v1/posts/${idPost}/comments`)
-      .then((response) => {
-        setComentarios(response.data)
-      })
-      .catch((error) => {
-        console.error('Erro ao obter comentários:', error)
-      })
+    try {
+      const response = await api.get(`api/v1/posts/${idPost}/comments`)
+      setComentarios(response.data)
+    } catch (error) {
+      console.error('Erro ao obter comentários:', error)
+    }
   }
 
   useEffect(() => {
@@ -59,7 +62,7 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
 
       return () => clearInterval(intervalId)
     }
-  }, [carregamentoInicial]) // Corrigido para adicionar carregamentoInicial como dependência do useEffect
+  }, [carregamentoInicial])
 
   const handleDeleteComment = async (idComment: number) => {
     try {
@@ -76,45 +79,43 @@ const Comentario: React.FC<ComentarioParam> = ({ idPost }) => {
         Comentários
       </Typography>
       <List
-        sx={{ maxHeight: '200px', overflow: 'auto', border: `1px solid black` }}
+        sx={{
+          maxHeight: '200px',
+          marginRight: 3,
+          overflow: 'auto',
+          border: `1px solid black`,
+        }}
       >
         {comentarios !== undefined &&
           comentarios.map((comment) => (
-            <ListItem
-              key={comment.id}
-              sx={{ display: 'flex', flexDirection: 'column' }}
-            >
-              <Box sx={{ display: 'flex', width: '100%' }}>
-                <ListItemAvatar sx={{ display: 'flex', alignItems: 'center' }}>
+            <ListItem key={comment.id}>
+              <Box sx={{ marginRight: 2 }}>
+                <ListItemAvatar>
                   <Avatar
                     alt={comment.user.name}
                     src={API + comment.user.profile_image}
                   />
                 </ListItemAvatar>
-                <ListItemText>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                    {comment.user.username}
-                  </Typography>
-                  <Typography variant="body2">
-                    {formatDate(comment.created_at)}
-                  </Typography>
-                </ListItemText>
+                <ListItemText
+                  primary={comment.user.username}
+                  secondary={formatDate(comment.created_at)}
+                />
               </Box>
-              <ListItemText
-                sx={{
-                  height: '100%',
-                  width: '100%',
-                  borderBottom: '0.3px solid gray',
-                }}
-              >
-                <Typography textAlign={'justify'}>{comment.comment}</Typography>
-              </ListItemText>
-              <IconButton
-                onClick={() => handleDeleteComment(comment.id)}
-                size="small"
-              >
-                <DeleteIcon />
-              </IconButton>
+              <ListItemText secondary={comment.comment} />
+              {id === post.user.id ? (
+                <IconButton
+                  sx={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    marginLeft: 2,
+                  }}
+                  onClick={() => handleDeleteComment(comment.id)}
+                  size="small"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              ) : null}
             </ListItem>
           ))}
       </List>
