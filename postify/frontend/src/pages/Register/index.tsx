@@ -79,7 +79,7 @@ const Cadastro = () => {
   return (
     <React.Fragment>
       {cadastrado && areaInformativa()}
-      <MyContainer>
+      <MyContainer withDefaultPaper={true}>
         <Typography align="center" variant="h6">
           Cadastro de Novo usuário
         </Typography>
