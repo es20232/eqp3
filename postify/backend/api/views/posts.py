@@ -130,7 +130,7 @@ class CommentViewSet(ViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if request.user == comment.post.user:
+        if request.user == comment.get().post.user:
             comment.get().delete()
             return Response(status=status.HTTP_200_OK)
         else:

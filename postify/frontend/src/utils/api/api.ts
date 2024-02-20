@@ -1,81 +1,58 @@
 import axios from 'axios'
-import { useEffect, useState } from 'react'
 import useAuthStore from '../stores/authStore'
+import useUserStore from '../stores/userStore'
 
 const api = axios.create({
   baseURL: 'http://localhost:8000',
 })
 
-const ApiConfig = () => {
-  const { accessToken, refreshToken, logout, updateTokens } = useAuthStore()
-  const [isRefreshingToken, setIsRefreshingToken] = useState(false)
+api.interceptors.request.use(
+  (config) => {
+    const accessToken = useAuthStore.getState().accessToken
 
-  const refreshAccessToken = async () => {
-    try {
-      setIsRefreshingToken(true)
-      const response = await api.post('/api/v1/refresh', {
-        refresh: refreshToken,
-      })
-
-      if (response.status === 200) {
-        updateTokens(response.data.access)
-        return true
-      } else {
-        logout()
-        return false
-      }
-    } catch (error) {
-      console.log(error)
-      logout()
-      return false
-    } finally {
-      setIsRefreshingToken(false)
+    if (accessToken != null) {
+      config.headers.Authorization = `Bearer ${accessToken}`
     }
-  }
+    return config
+  },
+  (error) => Promise.reject(error),
+)
 
-  useEffect(() => {
-    const requestInterceptor = api.interceptors.request.use(
-      async (config) => {
-        if (accessToken != null) {
-          config.headers.Authorization = `Bearer ${accessToken}`
-        }
-        return config
-      },
-      (error) => {
-        return Promise.reject(error)
-      },
-    )
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const { accessToken, refreshToken, updateTokens } = useAuthStore.getState()
+    const originalRequest = error.config
 
-    const responseInterceptor = api.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config
+    if (
+      error.response?.status === 401 &&
+      accessToken != null &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true
 
-        if (
-          error.response?.status === 401 &&
-          accessToken != null &&
-          !originalRequest._retry
-        ) {
-          originalRequest._retry = true
+      try {
+        const response = await api.post('/api/v1/refresh', {
+          refresh: refreshToken,
+        })
 
-          if (!isRefreshingToken) {
-            await refreshAccessToken()
-          }
-
+        if (response.status === 200) {
+          updateTokens(response.data.access)
           return api(originalRequest)
+        } else {
+          useAuthStore.persist.clearStorage()
+          useUserStore.persist.clearStorage()
+          return Promise.reject(error)
         }
-
+      } catch (error) {
+        useAuthStore.persist.clearStorage()
+        useUserStore.persist.clearStorage()
         return Promise.reject(error)
-      },
-    )
-
-    return () => {
-      api.interceptors.request.eject(requestInterceptor)
-      api.interceptors.response.eject(responseInterceptor)
+      }
     }
-  }, [accessToken, isRefreshingToken, logout, refreshToken, updateTokens])
 
-  return null
-}
+    return Promise.reject(error)
+  },
+)
 
-export { ApiConfig, api }
+export { api }
