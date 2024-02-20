@@ -41,6 +41,7 @@ import {
   updateUsuarioSchema,
 } from "../../utils/schemas/updateUsuarioSchema";
 import useUserStore from "../../utils/stores/userStore";
+import { boolean } from "zod";
 
 const style = {
   position: "absolute" as "absolute",
@@ -83,6 +84,7 @@ interface Post {
   likes: number;
   deslikes: number;
   comment: string;
+  user: UserProfile;
 }
 
 const URL = "http://localhost:8000";
@@ -95,22 +97,25 @@ const Profile = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const [openM, setOpen] = useState(null);
-  const [selectedPost, setSelectedPost] = useState<Post>(null);
+  const [openM, setOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post>();
   const [refreshPosts, setRefreshPosts] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
   const handleModalOpen = (post) => {
     setSelectedPost(post); // Armazena o post selecionado
     setOpen(true); // Abre o modal
   };
+
   const handleModalClose = () => {
     setOpen(false); // Fecha o modal
     setAnchorEl(null); // Garante que o estado do menu seja limpo
   };
 
-  const handleClick = (event) => {
+  const handleClick = (event, postId) => {
     event?.stopPropagation();
     setAnchorEl(event.currentTarget);
+    setSelectedPostId(postId);
   };
 
   const [commentValue, setCommentValue] = useState("");
@@ -118,14 +123,25 @@ const Profile = () => {
     e.preventDefault(); // Previne o comportamento padrão do formulário
     SubmitComment(postId, commentValue);
   };
-  
+
   const handleClose = (event) => {
     event?.stopPropagation(); // Interrompe a propagação do evento
     setAnchorEl(null); // Fecha o menu
   };
 
-  const handleDelete = (event) => {
-    handleClose(event);
+  const handleDelete = async (event) => {
+    event.stopPropagation(); // Interrompe a propagação do evento para evitar abrir o modal
+    console.log("PostID: ", selectedPostId)
+    try {
+      await api.delete(`/api/v1/posts/${selectedPostId}/`);
+      alert("Post deletado com sucesso!");
+      setAnchorEl(null);
+      const updatedPosts = posts.filter((post) => post.id !== selectedPostId);
+    setPosts(updatedPosts);
+    } catch (error) {
+      console.error("Erro ao deletar o post:", error);
+      alert("Não foi possível deletar o post.");
+    }
   };
 
   useEffect(() => {
@@ -151,14 +167,14 @@ const Profile = () => {
       setUser({ name, username, profileImage, id });
     }
   }, [paramsUsername, name, username, profileImage, id]);
-  
+
   const SubmitComment = async (postId, comment) => {
     try {
-      await api.post(`/api/v1/posts/${postId}/comments/create`, { comment: comment });
+      await api.post(`/api/v1/posts/${postId}/comments/create`, {
+        comment: comment,
+      });
       setRefreshPosts((prev) => !prev);
-    } catch (error) {
-     
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -179,7 +195,7 @@ const Profile = () => {
   }, [user?.id, refreshPosts]);
 
   const handleLike = async (event, id) => {
-    event?.stopPropagation()
+    event?.stopPropagation();
     try {
       // Faz a requisição para curtir o post
       await api.post(`/api/v1/posts/${id}/like/`);
@@ -194,7 +210,7 @@ const Profile = () => {
   };
 
   const handleDislike = async (event, id) => {
-    event?.stopPropagation()
+    event?.stopPropagation();
     try {
       // Faz a requisição para curtir o post
       await api.post(`/api/v1/posts/${id}/deslike/`);
@@ -463,7 +479,12 @@ const Profile = () => {
                                           )}
                                         </Box>
                                         <form
-                                          onSubmit={(e) => handleCommentSubmit(e, selectedPost.id)}
+                                          onSubmit={(e) =>
+                                            handleCommentSubmit(
+                                              e,
+                                              selectedPost.id
+                                            )
+                                          }
                                         >
                                           <TextField
                                             fullWidth
@@ -472,7 +493,9 @@ const Profile = () => {
                                             multiline
                                             rows={2}
                                             margin="normal"
-                                            onChange={(e) => setCommentValue(e.target.value)}
+                                            onChange={(e) =>
+                                              setCommentValue(e.target.value)
+                                            }
                                           />
 
                                           <Button
@@ -515,7 +538,9 @@ const Profile = () => {
                                 <Box display={"flex"} alignItems={"center"}>
                                   <IconButton
                                     aria-label="like"
-                                    onClick={(event) => handleLike(event, post.id)}
+                                    onClick={(event) =>
+                                      handleLike(event, post.id)
+                                    }
                                   >
                                     <ThumbUpIcon color={"primary"} />
                                   </IconButton>
@@ -528,7 +553,9 @@ const Profile = () => {
                                 <Box display={"flex"} alignItems={"center"}>
                                   <IconButton
                                     aria-label="dislike"
-                                    onClick={(event) => handleDislike(event, post.id)}
+                                    onClick={(event) =>
+                                      handleDislike(event, post.id)
+                                    }
                                   >
                                     <ThumbDownIcon color={"error"} />
                                   </IconButton>
@@ -538,25 +565,33 @@ const Profile = () => {
                                 </Box>
                               </Grid>
                               <Grid item sx={{ marginLeft: "50%" }}>
-                                <IconButton
-                                  aria-label="settings"
-                                  onClick={(event) => handleClick(event)}
-                                >
-                                  <MoreVertIcon />
-                                </IconButton>
-                                <Menu
-                                  id="post-menu"
-                                  anchorEl={anchorEl}
-                                  open={open}
-                                  onClose={handleClose}
-                                >
-                                  <MenuItem onClick={(event) => handleDelete(event)}>
-                                    <ListItemIcon>
-                                      <DeleteIcon />
-                                    </ListItemIcon>
-                                    <ListItemText>Excluir Post</ListItemText>
-                                  </MenuItem>
-                                </Menu>
+                                {id === post.user.id && (
+                                  <>
+                                    <IconButton
+                                      aria-label="settings"
+                                      onClick={(event) => handleClick(event, post.id)}
+                                    >
+                                      <MoreVertIcon />
+                                    </IconButton>
+                                    <Menu
+                                      id="post-menu"
+                                      anchorEl={anchorEl}
+                                      open={open}
+                                      onClose={handleClose}
+                                    >
+                                      <MenuItem
+                                        onClick={handleDelete}
+                                      >
+                                        <ListItemIcon>
+                                          <DeleteIcon />
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                          Excluir Post
+                                        </ListItemText>
+                                      </MenuItem>
+                                    </Menu>
+                                  </>
+                                )}
                               </Grid>
                             </Grid>
                           </CardContent>
