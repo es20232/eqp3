@@ -517,5 +517,106 @@ class UserPostCommentIntegrationTestCase(TestCase):
 
 
 # Testes de Sistema
+class systemTestCase(TestCase):
 
-# Testes de Cenário
+    def setUp(self):
+        def download_picture(filename: str, width: int, height: int):
+            response = requests.get(
+                f"https://picsum.photos/{width}/{height}",
+                stream=True,
+            )
+            with open(filename, "wb") as out_file:
+                out_file.write(response.content)
+
+        self.picture_filename = "test_picture.jpg"
+        download_picture(self.picture_filename, 512, 512)
+
+        
+
+    def test_user_interaction_flow(self):
+        """
+        Test case for simulating a user interaction flow.
+
+        This test case simulates a typical user interaction flow with the Instagram system.
+        It checks if a user can register, create a post, comment on a post, like and deslike a post successfully.
+        """        
+        # Simulando o registro de um novo usuário
+        raw_password=faker.password()
+        self.user = User.objects.create(
+            email=faker.email(),
+            name=faker.name(),
+            username="_".join(faker.name().split(" ")),
+            is_active=True
+        )
+        self.assertTrue(self.user.pk)
+        
+        # Simulando o login do usuário
+        self.user.set_password(raw_password)
+        self.user.save()
+        response = self.client.post("/api/v1/login", {"username": self.user.username, "password": raw_password}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.token = response.data["access"]
+        
+        # Simulando o post de um usuário
+        with open(self.picture_filename, "rb") as image:
+            response = self.client.post(
+                f"/api/v1/users/{self.user.pk}/posts/create",
+                {"caption": faker.text(), "image": image},
+                HTTP_AUTHORIZATION=f"Bearer {self.token}",
+                format="multipart",
+            )
+        self.assertEqual(response.status_code, 201)
+
+        # Simulando a criação de uma postagem
+        post_data = Post.objects.create(caption=faker.text(), user=self.user)
+        self.assertTrue(post_data.pk)
+
+        # Simulando a adição de um comentário à postagem
+        comment = Comment.objects.create(comment=faker.text(), user=self.user, post=post_data)
+        self.assertTrue(comment.pk)
+
+        # Simulando a exclusão do comentário da postagem
+        comment.delete()
+        self.assertFalse(Comment.objects.filter(pk=comment.pk).exists())
+
+        # Simulando a adição de um like à postagem
+        like = Like.objects.create(user=self.user, post=post_data)
+        self.assertTrue(like.pk)
+
+        # Simulando a remoção do like da postagem
+        like.delete()
+        self.assertFalse(Like.objects.filter(pk=like.pk).exists())
+
+        # Simulando a adição de um deslike à postagem
+        deslike = Deslike.objects.create(user=self.user, post=post_data)
+        self.assertTrue(deslike.pk)
+
+        # Simulando a remoção do Deslike da postagem
+        deslike.delete()
+        self.assertFalse(Deslike.objects.filter(pk=deslike.pk).exists())
+
+        # Simulando a exclusão da postagem
+        post_data.delete()
+        self.assertFalse(post_data.is_active)
+
+        # Simulando a exclusão do usuário
+        self.user.delete()
+        self.assertFalse(self.user.is_active)
+
+    def tearDown(self):
+        os.remove(self.picture_filename)
+        users = User.objects.all()
+        for user in users:
+            user.delete()
+        comment = Comment.objects.all()
+        for c in comment:
+            c.delete()
+        post = Post.objects.all()
+        for p in post:
+            p.delete()
+        like = Like.objects.all()
+        for l in like:
+            l.delete()
+        deslike = Deslike.objects.all()
+        for d in deslike:
+            d.delete()
