@@ -10,28 +10,12 @@ import {
   Typography,
 } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { Post } from '../../@types/post'
+import { Comment, Post } from '../../@types/post'
 import { api } from '../../utils/api/api'
 import formatDate from '../../utils/date/format'
 import useUserStore from '../../utils/stores/userStore'
 
 const API = 'http://localhost:8000'
-
-interface User {
-  id: number
-  username: string
-  name: string
-  email: string
-  profile_image: string | null
-}
-
-interface Comment {
-  id: number
-  user: User
-  comment: string
-  created_at: Date
-  updated_at: Date
-}
 
 interface ComentarioParam {
   idPost: number
@@ -40,7 +24,6 @@ interface ComentarioParam {
 
 const Comentario: React.FC<ComentarioParam> = ({ idPost, post }) => {
   const { id } = useUserStore()
-  console.log(post)
   const [carregamentoInicial, setCarregamentoInicial] = useState(true)
   const [comentarios, setComentarios] = useState<Comment[]>()
 
