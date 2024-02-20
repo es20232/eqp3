@@ -103,11 +103,7 @@ const PostComponent: React.FC<PostParams> = ({ id }) => {
         nome: response.data?.user.username,
         image: response.data?.user.profile_image,
       })
-      setPost({
-        image: response.data?.image,
-        caption: response.data?.caption,
-        created_at: new Date(response.data?.created_at + ''),
-      })
+      setPost(response.data)
     })
   }
 

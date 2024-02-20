@@ -40,7 +40,7 @@ interface ComentarioParam {
 
 const Comentario: React.FC<ComentarioParam> = ({ idPost, post }) => {
   const { id } = useUserStore()
-  console.log(post.user.id)
+  console.log(post)
   const [carregamentoInicial, setCarregamentoInicial] = useState(true)
   const [comentarios, setComentarios] = useState<Comment[]>()
 
