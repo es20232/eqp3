@@ -1,12 +1,12 @@
-import { CssBaseline, ThemeProvider } from "@mui/material";
-import React from "react";
-import ReactDOM from "react-dom/client";
-import theme from "./components/theme";
-import "./index.css";
+import { CssBaseline, ThemeProvider } from '@mui/material'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import theme from './components/theme'
+import './index.css'
 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import Home from "../src/App.tsx";
+import Home from '../src/App.tsx'
 import {
   PasswordRecovery,
   SubmitRequest,
@@ -15,29 +15,27 @@ import {
 import PrivateRoute from './components/PrivateRoute.tsx'
 import Feed from './pages/Feed/Feed.tsx'
 import LoginPage from './pages/Login/index.tsx'
+import Post from './pages/Post/index.tsx'
 import Register from './pages/Register/index.tsx'
-import Search from "./pages/Search/index.tsx"
+import Search from './pages/Search/index.tsx'
 import { EditProfile, Profile } from './pages/UserProfile/index.tsx'
 import ErrorNotFound from './pages/errors/notFound.tsx'
-import { ApiConfig } from './utils/api/api.ts'
-import Post from "./pages/Post/index.tsx";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme()}>
       <CssBaseline />
-      <ApiConfig />
       <BrowserRouter basename="/">
         <Routes>
           <Route index element={<LoginPage />} />
-          <Route path={"*"} element={<ErrorNotFound />} />
-          <Route path={"/register"} element={<Register />} />
-          <Route path={"/password-recovery"} element={<SubmitRequest />} />
+          <Route path={'*'} element={<ErrorNotFound />} />
+          <Route path={'/register'} element={<Register />} />
+          <Route path={'/password-recovery'} element={<SubmitRequest />} />
           <Route
-            path={"/password-recovery/change/:token"}
+            path={'/password-recovery/change/:token'}
             element={<PasswordRecovery />}
           />
-          <Route path={"/verified-email"} element={<VerifiedEmail />} />
+          <Route path={'/verified-email'} element={<VerifiedEmail />} />
 
           <Route path="/" element={<PrivateRoute />}>
             <Route
@@ -45,10 +43,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               element={<Home />}
               errorElement={<ErrorNotFound />}
             >
-              <Route
-                index
-                element={<Feed />}
-              />
+              <Route index element={<Feed />} />
             </Route>
             <Route path="/profile" element={<Home />}>
               <Route index element={<Profile />} />
@@ -63,11 +58,15 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               />
             </Route>
             <Route path="/createPost" element={<Home />}>
-              <Route index element={<Post/>} errorElement={<ErrorNotFound/>}/>
+              <Route
+                index
+                element={<Post />}
+                errorElement={<ErrorNotFound />}
+              />
             </Route>
           </Route>
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
-  </React.StrictMode>
-);
+  </React.StrictMode>,
+)

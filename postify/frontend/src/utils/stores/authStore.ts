@@ -9,7 +9,7 @@ interface AuthStoreState {
 
 interface AuthStoreActions extends AuthStoreState {
   login: (accessToken: string, refreshToken: string) => void
-  updateTokens: (accessToken: string) => void
+  updateTokens: (accessToken: string) => Promise<void>
 }
 
 const useAuthStore = create<AuthStoreActions>()(
@@ -21,7 +21,7 @@ const useAuthStore = create<AuthStoreActions>()(
       login: (accessToken, refreshToken) => {
         set({ accessToken, refreshToken, isAuthenticated: true })
       },
-      updateTokens: (accessToken) => {
+      updateTokens: async (accessToken) => {
         set({ accessToken })
       },
     }),

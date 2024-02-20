@@ -6,7 +6,7 @@ const VerifiedEmail = () => {
     const navigate = useNavigate()
 
     return (
-        <MyContainer>
+        <MyContainer withDefaultPaper={true}>
             <Typography textAlign={'center'} variant="h6">
                 Verificação de Email
             </Typography>

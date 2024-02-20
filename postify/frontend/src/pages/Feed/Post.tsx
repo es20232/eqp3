@@ -1,16 +1,29 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import CommentIcon from '@mui/icons-material/Comment';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import { Avatar, Box, Button, Grid, IconButton, Modal, TextField, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from 'react-hook-form';
-import AlertInformativo from '../../components/AlertInformativo';
-import MyPaper from '../../components/MyPaper';
-import { api } from '../../utils/api/api';
-import formatDate from '../../utils/date/format';
-import { sendCommentFormData, sendCommentSchema } from '../../utils/schemas/sendComment';
-import Comentarios from './Comentario';
+import { zodResolver } from '@hookform/resolvers/zod'
+import CommentIcon from '@mui/icons-material/Comment'
+import ThumbDownIcon from '@mui/icons-material/ThumbDown'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp'
+import {
+  Avatar,
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  Modal,
+  TextField,
+  Typography,
+} from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import AlertInformativo from '../../components/AlertInformativo'
+import MyPaper from '../../components/MyPaper'
+import { api } from '../../utils/api/api'
+import formatDate from '../../utils/date/format'
+import {
+  sendCommentFormData,
+  sendCommentSchema,
+} from '../../utils/schemas/sendComment'
+import Comentarios from './Comentario'
 
 const API = 'http://localhost:8000'
 
@@ -31,29 +44,39 @@ const style = {
 }
 
 const Post: React.FC<PostParams> = ({ id }) => {
-  const [execucaoInicial, setExecucaoInicial] = useState(false);
-  const [user, setUser] = useState<{ nome: string, image: string }>({
-    nome: '', image: ''
+  const [execucaoInicial, setExecucaoInicial] = useState(false)
+  const [user, setUser] = useState<{ nome: string; image: string }>({
+    nome: '',
+    image: '',
   })
-  const [post, setPost] = useState<{ image: string, caption: string, created_at: Date }>({
-    image: '', caption: '', created_at: new Date()
+  const [post, setPost] = useState<{
+    image: string
+    caption: string
+    created_at: Date
+  }>({
+    image: '',
+    caption: '',
+    created_at: new Date(),
   })
   const [like, setLike] = useState(0)
   const [dislike, setDislike] = useState(0)
   const [comentario, setComentario] = useState(0)
 
-  const [erro, setErro] = useState<{ comentario: boolean, descricao: string }>({
-    comentario: false, descricao: ''
+  const [erro, setErro] = useState<{ comentario: boolean; descricao: string }>({
+    comentario: false,
+    descricao: '',
   })
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
 
+  const navigate = useNavigate()
+
   const {
     register: registerComment,
     handleSubmit: handleSubmitComment,
     formState: { errors: errorsComment },
-    setValue: setComment
+    setValue: setComment,
   } = useForm<sendCommentFormData>({
     resolver: zodResolver(sendCommentSchema),
   })
@@ -61,94 +84,96 @@ const Post: React.FC<PostParams> = ({ id }) => {
   useEffect(() => {
     if (execucaoInicial === false) {
       setExecucaoInicial(true)
-      handleUpdate();
+      handleUpdate()
     } else {
       setTimeout(() => {
-        handleUpdate();
+        handleUpdate()
       }, 10000)
     }
-  })
+  }, [execucaoInicial])
 
   useEffect(() => {
     if (erro.comentario) {
       setTimeout(() => {
-        setErro({ comentario: false, descricao: '' });
+        setErro({ comentario: false, descricao: '' })
       }, 5000)
     }
   }, [erro])
 
   const handleUpdate = async () => {
-    await api.get(`/api/v1/posts/${id}`)
-      .then((response) => {
-        setLike(response.data?.likes.length);
-        setDislike(response.data?.deslikes.length)
-        setComentario(response.data?.comments.length)
-        setUser({
-          nome: response.data?.user.username,
-          image: response.data?.user.profile_image
-        })
-        setPost({
-          image: response.data?.image,
-          caption: response.data?.caption,
-          created_at: new Date(response.data?.created_at + "")
-        })
+    await api.get(`/api/v1/posts/${id}`).then((response) => {
+      setLike(response.data?.likes.length)
+      setDislike(response.data?.deslikes.length)
+      setComentario(response.data?.comments.length)
+      setUser({
+        nome: response.data?.user.username,
+        image: response.data?.user.profile_image,
       })
+      setPost({
+        image: response.data?.image,
+        caption: response.data?.caption,
+        created_at: new Date(response.data?.created_at + ''),
+      })
+    })
   }
 
   const handleLike = async () => {
-    await api.post(`/api/v1/posts/${id}/like/`).then(
-      () => handleUpdate()
-    );
+    await api.post(`/api/v1/posts/${id}/like/`).then(() => handleUpdate())
   }
 
   const handleDislike = async () => {
-    await api.post(`/api/v1/posts/${id}/deslike/`).then(
-      () => handleUpdate()
-    );
+    await api.post(`/api/v1/posts/${id}/deslike/`).then(() => handleUpdate())
   }
 
   const onSubmit: SubmitHandler<sendCommentFormData> = async (data) => {
     if (id !== -1)
-      await api.
-        post(`api/v1/posts/${id}/comments/create`, data)
+      await api
+        .post(`api/v1/posts/${id}/comments/create`, data)
         .then(() => {
-          setComment("comment", "");
-          handleUpdate();
-          handleClose();
+          setComment('comment', '')
+          handleUpdate()
+          handleClose()
         })
         .catch(() => {
           setErro({
             comentario: true,
-            descricao: 'Você só pode comentar este post uma vez.'
+            descricao: 'Você só pode comentar este post uma vez.',
           })
-        });
+        })
   }
 
   const handleErroComentario = () => {
-    setComment("comment", "");
+    setComment('comment', '')
 
-    return (
-      <AlertInformativo
-        message={erro.descricao}
-        severityMessage='error'
-      />
-    )
+    return <AlertInformativo message={erro.descricao} severityMessage="error" />
   }
 
   return (
     <React.Fragment>
       {erro.comentario && handleErroComentario()}
-      <MyPaper marginTopo='0px' elevation={4}>
+      <MyPaper marginTopo="0px" elevation={4}>
         <Grid container spacing={2}>
           <Grid container item xs={12} sx={{ display: 'flex' }}>
-            <Grid item xs={2} >
-              <Avatar
-                src={API + user.image}
-              />
+            <Grid item xs={2}>
+              <IconButton onClick={() => navigate(`/profile/${user.nome}`)}>
+                <Avatar src={API + user.image} />
+              </IconButton>
             </Grid>
-            <Grid item xs={10} style={{ display: 'flex' }}>
-              <Typography variant="h6" sx={{ width: '100%' }} textAlign={'left'}>{user.nome}</Typography>
-              <Typography variant='body2'>{formatDate(post.created_at.toString())}</Typography>
+            <Grid
+              item
+              xs={10}
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ width: '100%' }}
+                textAlign={'left'}
+              >
+                {user.nome}
+              </Typography>
+              <Typography variant="body2">
+                {formatDate(post.created_at.toString())}
+              </Typography>
             </Grid>
           </Grid>
           <Grid item xs={12}>
@@ -165,10 +190,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
           <Grid container item xs={12}>
             <Grid item xs={2}>
               <Box display={'flex'} alignItems={'center'}>
-                <IconButton
-                  aria-label="like"
-                  onClick={() => handleLike()}
-                >
+                <IconButton aria-label="like" onClick={() => handleLike()}>
                   <ThumbUpIcon color={'primary'} />
                 </IconButton>
                 <Typography variant="body2">{like}</Typography>
@@ -196,9 +218,7 @@ const Post: React.FC<PostParams> = ({ id }) => {
                 >
                   <CommentIcon />
                 </IconButton>
-                <Typography variant="body2">
-                  {comentario}
-                </Typography>
+                <Typography variant="body2">{comentario}</Typography>
               </Box>
             </Grid>
           </Grid>
@@ -210,7 +230,12 @@ const Post: React.FC<PostParams> = ({ id }) => {
           >
             <Box sx={style}>
               <form
-                style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
                 onSubmit={handleSubmitComment(onSubmit)}
               >
                 <TextField
@@ -221,23 +246,20 @@ const Post: React.FC<PostParams> = ({ id }) => {
                   helperText={errorsComment.comment?.message}
                 />
                 <Button
-                  type='submit'
-                  variant='contained'
+                  type="submit"
+                  variant="contained"
                   style={{ marginTop: '10px' }}
                 >
                   Comentar
                 </Button>
               </form>
-              {
-                comentario > 0 &&
-                <Comentarios idPost={id} />
-              }
+              {comentario > 0 && <Comentarios idPost={id} />}
             </Box>
           </Modal>
         </Grid>
       </MyPaper>
     </React.Fragment>
-  );
+  )
 }
 
-export default Post;
+export default Post
