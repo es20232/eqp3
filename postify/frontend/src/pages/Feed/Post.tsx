@@ -5,6 +5,7 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { Avatar, Box, Button, Grid, IconButton, Modal, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import AlertInformativo from '../../components/AlertInformativo';
 import MyPaper from '../../components/MyPaper';
 import { api } from '../../utils/api/api';
@@ -48,6 +49,8 @@ const Post: React.FC<PostParams> = ({ id }) => {
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+
+  const navigate = useNavigate()
 
   const {
     register: registerComment,
@@ -141,12 +144,16 @@ const Post: React.FC<PostParams> = ({ id }) => {
       <MyPaper marginTopo='0px' elevation={4}>
         <Grid container spacing={2}>
           <Grid container item xs={12} sx={{ display: 'flex' }}>
-            <Grid item xs={2} >
-              <Avatar
-                src={API + user.image}
-              />
+            <Grid item xs={2}>
+              <IconButton
+                onClick={() => navigate(`/profile/${user.nome}`)}
+              >
+                <Avatar
+                  src={API + user.image}
+                />
+              </IconButton>
             </Grid>
-            <Grid item xs={10} style={{ display: 'flex' }}>
+            <Grid item xs={10} style={{ display: 'flex', alignItems: 'center' }}>
               <Typography variant="h6" sx={{ width: '100%' }} textAlign={'left'}>{user.nome}</Typography>
               <Typography variant='body2'>{formatDate(post.created_at.toString())}</Typography>
             </Grid>
